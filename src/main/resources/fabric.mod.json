@@ -28,9 +28,9 @@
     "anythingbutfish.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.18.4",
+    "fabricloader": ">=0.16.14",
     "fabric-api": "*",
-    "minecraft": "${minecraft_version}"
+    "minecraft": "~1.21.1"
   },
   "suggests": {
     "yet_another_config_lib_v3": ">=3.0.0",
