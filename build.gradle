@@ -37,8 +37,8 @@ dependencies {
 
     // ModMenu – optional at runtime, compile-only for the ModMenuApi interface
     modCompileOnly "com.terraformersmc:modmenu:13.0.0"
-    // modLocalRuntime intentionally omitted: ModMenu dev runtime causes Mixin crash on MC 1.21.11
-    // ModMenu integration works at runtime when players install a compatible ModMenu version
+    // ModMenu dev runtime – use a version compatible with MC 1.21.11
+    modLocalRuntime "com.terraformersmc:modmenu:17.0.0-beta.2"
 }
 
 processResources {
