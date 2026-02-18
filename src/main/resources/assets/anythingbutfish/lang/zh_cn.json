@@ -31,7 +31,7 @@
   "config.anythingbutfish.infiniteDurability": "无限耐久",
   "config.anythingbutfish.infiniteDurability.tooltip": "防止钓鱼竿损耗耐久。\n§a开启§r：钓鱼竿永不损坏，可无限次抛竿收杆。\n§c关闭§r：正常耐久损耗。\n§7注意：适用于原版钓鱼竿及继承 FishingRodItem 的模组钓鱼竿。§r",
   "config.anythingbutfish.replaceLootChestRods": "向初始奖励箱添加新鲜钓鱼竿",
-  "config.anythingbutfish.replaceLootChestRods.tooltip": "开启后，向世界出生点的初始奖励箱战利品表（minecraft:chests/spawn_bonus_chest）额外添加一把全新（无损耗、无附魔）的钓鱼竿。\n初始奖励箱是在创建世界时勾选"奖励箱"选项后，在出生点生成的那个起始箱子。\n§7注意：这是在原有奖励箱战利品基础上额外添加，不会移除原有条目。§r",
+  "config.anythingbutfish.replaceLootChestRods.tooltip": "开启后，向世界出生点的初始奖励箱战利品表（minecraft:chests/spawn_bonus_chest）额外添加一把全新（无损耗、无附魔）的钓鱼竿。\n初始奖励箱是在创建世界时勾选奖励箱选项后，在出生点生成的那个起始箱子。\n§7注意：这是在原有奖励箱战利品基础上额外添加，不会移除原有条目。§r",
   "config.anythingbutfish.moddedRodCompat": "模组钓鱼竿兼容",
   "config.anythingbutfish.moddedRodCompat.tooltip": "兼容模组钓鱼竿。\n§a开启§r：任何使用原版 FishingHook 实体的钓鱼竿都会触发随机战利品，包括大多数模组钓鱼竿。\n§7注意：由于 Mixin 直接注入 FishingHook，此功能默认已生效。此开关仅为信息性标志。§r",
   "config.anythingbutfish.allowModdedItems": "允许钓起 Mod 物品",
