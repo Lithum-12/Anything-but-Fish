@@ -2,7 +2,7 @@ package com.lithumc;
 
 import com.lithumc.config.AbfConfig;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
+import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -19,9 +19,11 @@ import org.slf4j.LoggerFactory;
  *     when replaceLootChestRods is enabled. This supplements (not replaces) existing
  *     rod entries, ensuring players always get at least one fresh rod from these tables.
  *
- * Note: Fabric loot-api-v3 MODIFY event can add new pools but cannot remove/replace
+ * Note: Fabric loot-api-v2 MODIFY event can add new pools but cannot remove/replace
  * existing pool entries. The "replace" behavior is approximated by adding a fresh rod
  * pool alongside the existing one. For a true replacement, a data pack would be needed.
+ *
+ * MC 1.21.1 port: uses loot-api-v2 (LootTableEvents without registries parameter).
  */
 public class AnythingButFish implements ModInitializer {
 
@@ -43,10 +45,10 @@ public class AnythingButFish implements ModInitializer {
      * Registers a loot table modifier that adds a fresh fishing rod pool to
      * relevant loot tables when replaceLootChestRods is enabled.
      *
-     * Uses Fabric API loot-api-v3 LootTableEvents.MODIFY for version stability.
+     * Uses Fabric API loot-api-v2 LootTableEvents.MODIFY for MC 1.21.1.
      */
     private void registerLootModifier() {
-        LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
+        LootTableEvents.MODIFY.register((resourceManager, lootManager, key, tableBuilder, source) -> {
             if (!AbfConfig.get().replaceLootChestRods) return;
 
             String tableId = key.toString();

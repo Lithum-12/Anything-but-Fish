@@ -36,8 +36,8 @@ dependencies {
     modLocalRuntime "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 
     // ModMenu – optional at runtime, compile-only for the ModMenuApi interface
-    modCompileOnly "com.terraformersmc:modmenu:13.0.0"
-    modLocalRuntime "com.terraformersmc:modmenu:13.0.0"
+    modCompileOnly "com.terraformersmc:modmenu:11.0.3"
+    modLocalRuntime "com.terraformersmc:modmenu:11.0.3"
 }
 
 processResources {

@@ -8,9 +8,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
@@ -36,6 +36,8 @@ import java.util.Random;
  * use the same net.minecraft.world.entity.projectile.FishingHook class,
  * this mixin automatically covers modded rods that use the vanilla hook entity.
  * The moddedRodCompat config flag is informational.
+ *
+ * MC 1.21.1 port: uses MobSpawnType instead of EntitySpawnReason.
  */
 @Mixin(FishingHook.class)
 public abstract class FishingHookMixin {
@@ -118,11 +120,8 @@ public abstract class FishingHookMixin {
 
     private static void spawnRandomLoot(FishingHook hook, ServerLevel level,
                                          ServerPlayer player, AbfConfig cfg) {
-        // cfg.thresholdXp() = chanceItem + chanceEntity + chanceXp (already clamped to 0-100 by AbfConfig.save/load)
-        // If all three chances are 0, total = 0 → nothing happens (silent, no sound).
         int total = cfg.thresholdXp();
         if (total <= 0) {
-            // All chances are 0: nothing to do, no loot, no sound.
             if (cfg.debugMode) {
                 LOGGER.info("[AnythingButFish] All chances are 0 - no loot generated.");
                 player.sendSystemMessage(Component.literal("[ABF] All chances are 0 - no loot."));
@@ -130,9 +129,7 @@ public abstract class FishingHookMixin {
             return;
         }
 
-        // Roll in range [0, total) so the probability distribution is always correct
-        // regardless of whether total < 100 (remainder = "got away") or total == 100 (no got-away).
-        int roll = RANDOM.nextInt(total + (100 - total)); // equivalent to nextInt(100), but explicit
+        int roll = RANDOM.nextInt(total + (100 - total)); // equivalent to nextInt(100)
 
         if (roll < cfg.thresholdItem()) {
             spawnItem(hook, level, player, cfg);
@@ -141,7 +138,7 @@ public abstract class FishingHookMixin {
         } else if (roll < cfg.thresholdXp()) {
             spawnExperienceOrbs(hook, level, player, cfg);
         } else {
-            // "The one that got away" — roll fell in the [total, 100) gap
+            // "The one that got away"
             level.playSound(null, hook.getX(), hook.getY(), hook.getZ(),
                     SoundEvents.FISHING_BOBBER_SPLASH, SoundSource.NEUTRAL, 0.25F, 1.0F);
             if (cfg.debugMode) {
@@ -171,7 +168,6 @@ public abstract class FishingHookMixin {
             minCount = entry.minCount >= 1 ? entry.minCount : cfg.itemCountMin;
             maxCount = entry.maxCount >= minCount ? entry.maxCount : cfg.itemCountMax;
         } else {
-            // Full-registry random mode: filter by allowModdedItems
             List<Item> allItems = BuiltInRegistries.ITEM.stream()
                     .filter(item -> cfg.allowModdedItems ||
                             "minecraft".equals(BuiltInRegistries.ITEM.getKey(item).getNamespace()))
@@ -214,7 +210,6 @@ public abstract class FishingHookMixin {
             }
             trySpawn(opt.get(), hook, level, player, cfg);
         } else {
-            // Full-registry random mode: filter by allowModdedEntities
             List<EntityType<?>> safeTypes = BuiltInRegistries.ENTITY_TYPE.stream()
                     .filter(et -> et != EntityType.PLAYER && et != EntityType.FISHING_BOBBER)
                     .filter(et -> cfg.allowModdedEntities ||
@@ -229,7 +224,7 @@ public abstract class FishingHookMixin {
                                                      ServerLevel level, ServerPlayer player,
                                                      AbfConfig cfg) {
         try {
-            T entity = type.create(level, EntitySpawnReason.COMMAND);
+            T entity = type.create(level, null, null, hook.blockPosition(), MobSpawnType.COMMAND, false, false);
             if (entity != null) {
                 double x = hook.getX(), y = hook.getY(), z = hook.getZ();
                 entity.setPos(x, y, z);
@@ -245,7 +240,7 @@ public abstract class FishingHookMixin {
         } catch (Exception e) {
             LOGGER.warn("[AnythingButFish] Failed to spawn {}: {}", type, e.getMessage());
             try {
-                var pig = EntityType.PIG.create(level, EntitySpawnReason.COMMAND);
+                var pig = EntityType.PIG.create(level, null, null, hook.blockPosition(), MobSpawnType.COMMAND, false, false);
                 if (pig != null) {
                     pig.setPos(hook.getX(), hook.getY(), hook.getZ());
                     applyArc(pig, hook.getX(), hook.getY(), hook.getZ(), player, cfg);
