@@ -1,38 +1,27 @@
 package com.lithumc.client;
 
+import com.lithumc.AnythingButFish;
 import com.lithumc.config.AbfYaclBridge;
-import com.terraformersmc.modmenu.api.ConfigScreenFactory;
-import com.terraformersmc.modmenu.api.ModMenuApi;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-import com.lithumc.AnythingButFish;
 
 /**
  * Client-side initializer for AnythingButFish.
  *
- * Registers a ModMenu config screen factory if both ModMenu and YACL are present.
- * If only ModMenu is present (no YACL), the config button is hidden.
- * If neither is present, nothing happens.
+ * ModMenu integration is handled via a separate entrypoint class (AbfModMenuIntegration)
+ * registered in fabric.mod.json only when ModMenu is present. This avoids a
+ * NoClassDefFoundError crash when ModMenu is not installed.
  */
-public class anythingbutfishClient implements ClientModInitializer, ModMenuApi {
+public class anythingbutfishClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
         AnythingButFish.LOGGER.info("[AnythingButFish] Client initialized.");
         // Log YACL status on client startup
         AbfYaclBridge.isYaclPresent();
-    }
 
-    /**
-     * ModMenu integration: provide a config screen factory.
-     * Returns null factory if YACL is not present (ModMenu will hide the button).
-     */
-    @Override
-    public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        if (AbfYaclBridge.isYaclPresent()) {
-            return parent -> AbfYaclBridge.createConfigScreen(parent);
+        if (FabricLoader.getInstance().isModLoaded("modmenu")) {
+            AnythingButFish.LOGGER.info("[AnythingButFish] ModMenu detected.");
         }
-        // No YACL – return null so ModMenu shows no config button
-        return null;
     }
 }

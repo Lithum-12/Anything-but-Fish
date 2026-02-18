@@ -21,7 +21,7 @@
       "com.lithumc.client.anythingbutfishClient"
     ],
     "modmenu": [
-      "com.lithumc.client.anythingbutfishClient"
+      "com.lithumc.client.AbfModMenuIntegration"
     ]
   },
   "mixins": [
