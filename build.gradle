@@ -37,7 +37,8 @@ dependencies {
 
     // ModMenu – optional at runtime, compile-only for the ModMenuApi interface
     modCompileOnly "com.terraformersmc:modmenu:13.0.0"
-    // modLocalRuntime removed: ModMenu 13.0.0 is incompatible with MC 1.21.11 dev env
+    // Use 18.0.0-alpha.5 for dev runtime (compatible with MC 1.21.11)
+    modLocalRuntime "com.terraformersmc:modmenu:18.0.0-alpha.5"
 }
 
 processResources {
