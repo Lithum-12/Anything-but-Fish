@@ -1,5 +1,7 @@
 package com.lithumc.config;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
 import dev.isxander.yacl3.api.controller.DoubleSliderControllerBuilder;
@@ -16,6 +18,7 @@ import java.util.List;
  *
  * Tab order: 常规 | 杂项 | 物品池 | 实体池
  */
+@Environment(EnvType.CLIENT)
 public class AbfYaclConfig {
 
     // -----------------------------------------------------------------------
