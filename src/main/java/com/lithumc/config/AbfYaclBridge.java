@@ -1,6 +1,8 @@
 package com.lithumc.config;
 
 import com.lithumc.AnythingButFish;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screens.Screen;
 
@@ -13,7 +15,10 @@ import java.lang.reflect.Method;
  * Using reflection means the JVM will never attempt to load AbfYaclConfig
  * (and its YACL imports) unless YACL is present, so the mod works fine
  * without YACL installed.
+ *
+ * This class is client-only: it references net.minecraft.client.gui.screens.Screen.
  */
+@Environment(EnvType.CLIENT)
 public class AbfYaclBridge {
 
     private static final String YACL_MOD_ID = "yet_another_config_lib_v3";
