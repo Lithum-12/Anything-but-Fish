@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "anythingbutfish",
+  "version": "${version}",
+  "name": "AnythingButFish",
+  "description": "Replaces vanilla fishing loot with completely random items, entities, and experience orbs. Who knows what you'll reel in next?",
+  "authors": [
+    "LithumC"
+  ],
+  "contact": {
+    "sources": "https://github.com/lithumc/AnythingButFishMod"
+  },
+  "license": "Unlicense",
+  "icon": "assets/anythingbutfish/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.lithumc.AnythingButFish"
+    ],
+    "client": [
+      "com.lithumc.client.anythingbutfishClient"
+    ],
+    "modmenu": [
+      "com.lithumc.client.anythingbutfishClient"
+    ]
+  },
+  "mixins": [
+    "anythingbutfish.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  },
+  "suggests": {
+    "yet_another_config_lib_v3": ">=3.0.0",
+    "modmenu": "*"
+  }
+}

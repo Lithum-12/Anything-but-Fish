@@ -1,0 +1,5 @@
+=== yet_another_config_lib_v3-3.8.2+1.21.11-fabric.jar ===
+  accessWidener declared: yet_another_config_lib_v3.ct
+  First line: 'classTweaker\tv1\tintermediary'
+=== [模组菜单] modmenu-17.0.0-beta.2.jar ===
+  No accessWidener declared
