@@ -52,7 +52,7 @@ public class AnythingButFish implements ModInitializer {
      * Uses Fabric API loot-api-v2 LootTableEvents.MODIFY for MC 1.21.1.
      */
     private void registerLootModifier() {
-        LootTableEvents.MODIFY.register((resourceManager, lootManager, key, tableBuilder, source) -> {
+        LootTableEvents.MODIFY.register((key, tableBuilder, source) -> {
             if (!AbfConfig.get().replaceLootChestRods) return;
 
             // Only patch the world spawn bonus chest
