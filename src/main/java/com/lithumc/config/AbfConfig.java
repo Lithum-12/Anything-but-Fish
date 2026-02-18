@@ -56,9 +56,12 @@ public class AbfConfig {
     public boolean infiniteDurability = false;
 
     /**
-     * Replace loot chest fishing rod loot with a fishing rod.
-     * When true, any loot table entry that would give a fishing rod is replaced
-     * with a fresh fishing rod (full durability, no enchantments).
+     * Add a fresh fishing rod to the world spawn bonus chest loot table
+     * (minecraft:chests/spawn_bonus_chest).
+     * The bonus chest is the optional starter chest generated at world spawn
+     * when the player enables "Bonus Chest" during world creation.
+     * When true, a fresh (undamaged, unenchanted) fishing rod is added alongside
+     * the existing bonus chest loot.
      */
     public boolean replaceLootChestRods = false;
 

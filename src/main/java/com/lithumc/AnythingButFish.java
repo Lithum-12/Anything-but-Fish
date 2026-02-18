@@ -42,8 +42,12 @@ public class AnythingButFish implements ModInitializer {
     }
 
     /**
-     * Registers a loot table modifier that adds a fresh fishing rod pool to
-     * relevant loot tables when replaceLootChestRods is enabled.
+     * Registers a loot table modifier that adds a fresh fishing rod to the
+     * world spawn bonus chest (minecraft:chests/spawn_bonus_chest) when
+     * replaceLootChestRods is enabled.
+     *
+     * The bonus chest is the optional starter chest generated at world spawn
+     * when the player enables "Bonus Chest" during world creation.
      *
      * Uses Fabric API loot-api-v2 LootTableEvents.MODIFY for MC 1.21.1.
      */
@@ -51,31 +55,10 @@ public class AnythingButFish implements ModInitializer {
         LootTableEvents.MODIFY.register((resourceManager, lootManager, key, tableBuilder, source) -> {
             if (!AbfConfig.get().replaceLootChestRods) return;
 
-            String tableId = key.toString();
+            // Only patch the world spawn bonus chest
+            if (!"minecraft:chests/spawn_bonus_chest".equals(key.toString())) return;
 
-            // Only patch fishing and chest-type loot tables
-            boolean isFishingOrChest =
-                    tableId.contains("fishing") ||
-                    tableId.contains("chest/") ||
-                    tableId.contains("chests/") ||
-                    tableId.contains("shipwreck") ||
-                    tableId.contains("dungeon") ||
-                    tableId.contains("stronghold") ||
-                    tableId.contains("village") ||
-                    tableId.contains("bastion") ||
-                    tableId.contains("ruined_portal") ||
-                    tableId.contains("igloo") ||
-                    tableId.contains("jungle_temple") ||
-                    tableId.contains("desert_pyramid") ||
-                    tableId.contains("woodland_mansion") ||
-                    tableId.contains("pillager_outpost") ||
-                    tableId.contains("ancient_city") ||
-                    tableId.contains("trail_ruins");
-
-            if (!isFishingOrChest) return;
-
-            // Add a pool that gives a fresh (undamaged) fishing rod
-            // Roll: 1 rod, guaranteed (rolls=1, bonus_rolls=0)
+            // Add a pool that gives a fresh (undamaged, unenchanted) fishing rod
             LootPool freshRodPool = LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1))
                     .add(LootItem.lootTableItem(Items.FISHING_ROD))
@@ -84,7 +67,7 @@ public class AnythingButFish implements ModInitializer {
             tableBuilder.pool(freshRodPool);
 
             if (AbfConfig.get().debugMode) {
-                LOGGER.info("[AnythingButFish] Added fresh rod pool to: {}", tableId);
+                LOGGER.info("[AnythingButFish] Added fresh rod to spawn_bonus_chest loot table.");
             }
         });
 
