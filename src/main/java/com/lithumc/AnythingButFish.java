@@ -60,12 +60,10 @@ public class AnythingButFish implements ModInitializer {
             if (!"minecraft:chests/spawn_bonus_chest".equals(id.toString())) return;
 
             // Add a pool that gives a fresh (undamaged, unenchanted) fishing rod
-            LootPool freshRodPool = LootPool.lootPool()
+            // MC 1.20.4: withPool() takes LootPool.Builder, not LootPool
+            tableBuilder.withPool(LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1))
-                    .add(LootItem.lootTableItem(Items.FISHING_ROD))
-                    .build();
-
-            tableBuilder.withPool(freshRodPool);
+                    .add(LootItem.lootTableItem(Items.FISHING_ROD)));
 
             if (AbfConfig.get().debugMode) {
                 LOGGER.info("[AnythingButFish] Added fresh rod to spawn_bonus_chest loot table.");
