@@ -4,6 +4,16 @@
 
   "config.anythingbutfish.title": "就是不钓鱼 配置",
 
+  "config.anythingbutfish.category.general": "常规",
+  "config.anythingbutfish.category.chances": "掉落概率",
+  "config.anythingbutfish.category.items": "物品设置",
+  "config.anythingbutfish.category.xp": "经验设置",
+  "config.anythingbutfish.category.physics": "抛出物理",
+  "config.anythingbutfish.category.info": "物品/实体池说明",
+
+  "config.anythingbutfish.info.pools": "物品池和实体池通过编辑配置文件（.minecraft/config/anythingbutfish.json）来配置。",
+  "config.anythingbutfish.info.pools.format": "物品池格式：{\"id\":\"minecraft:diamond\",\"weight\":5,\"minCount\":1,\"maxCount\":3}\n实体池格式：{\"id\":\"minecraft:pig\",\"weight\":10}\n留空则从全部注册表中随机选取。",
+
   "config.anythingbutfish.cat.general": "常规",
   "config.anythingbutfish.cat.general.tooltip": "配置掉落概率、物品数量、经验值范围和抛出物理参数。",
   "config.anythingbutfish.cat.misc": "杂项",
