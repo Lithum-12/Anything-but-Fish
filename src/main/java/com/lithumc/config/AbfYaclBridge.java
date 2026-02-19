@@ -9,6 +9,15 @@ import net.minecraft.client.gui.screens.Screen;
 public class AbfYaclBridge {
     
     /**
+     * Check if the config library is present.
+     * For Cloth Config, always returns true since it's bundled.
+     * @return true
+     */
+    public static boolean isYaclPresent() {
+        return true; // Cloth Config is bundled with the mod
+    }
+    
+    /**
      * Create the config screen using Cloth Config.
      * @param parent The parent screen
      * @return The config screen
