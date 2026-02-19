@@ -2,7 +2,8 @@ package com.lithumc;
 
 import com.lithumc.config.AbfConfig;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.loot.v1.LootTableEvents;
+import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -19,11 +20,11 @@ import org.slf4j.LoggerFactory;
  *     when replaceLootChestRods is enabled. This supplements (not replaces) existing
  *     rod entries, ensuring players always get at least one fresh rod from these tables.
  *
- * Note: Fabric loot-api-v1 MODIFY event can add new pools but cannot remove/replace
+ * Note: Fabric loot-api-v2 MODIFY event can add new pools but cannot remove/replace
  * existing pool entries. The "replace" behavior is approximated by adding a fresh rod
  * pool alongside the existing one. For a true replacement, a data pack would be needed.
  *
- * MC 1.20.4 port: uses loot-api-v1 (LootTableEvents with ResourceLocation and LootTableManager).
+ * MC 1.20.4 port: uses loot-api-v2 (LootTableEvents with ResourceLocation parameter).
  */
 public class AnythingButFish implements ModInitializer {
 
@@ -49,14 +50,15 @@ public class AnythingButFish implements ModInitializer {
      * The bonus chest is the optional starter chest generated at world spawn
      * when the player enables "Bonus Chest" during world creation.
      *
-     * Uses Fabric API loot-api-v1 LootTableEvents.MODIFY for MC 1.20.4.
+     * Uses Fabric API loot-api-v2 LootTableEvents.MODIFY for MC 1.20.4.
      */
     private void registerLootModifier() {
-        LootTableEvents.MODIFY.register((resourceManager, lootTables, id, tableBuilder, source) -> {
+        LootTableEvents.MODIFY.register((key, tableBuilder, source) -> {
             if (!AbfConfig.get().replaceLootChestRods) return;
 
             // Only patch the world spawn bonus chest
-            if (!"minecraft:chests/spawn_bonus_chest".equals(id.toString())) return;
+            ResourceLocation keyId = key.location();
+            if (!"minecraft:chests/spawn_bonus_chest".equals(keyId.toString())) return;
 
             // Add a pool that gives a fresh (undamaged, unenchanted) fishing rod
             LootPool freshRodPool = LootPool.lootPool()
