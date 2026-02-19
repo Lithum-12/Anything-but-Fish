@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.15-SNAPSHOT'
+    id 'fabric-loom' version '1.7-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -36,9 +36,9 @@ dependencies {
     modLocalRuntime "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 
     // ModMenu – optional at runtime, compile-only for the ModMenuApi interface
-    modCompileOnly "com.terraformersmc:modmenu:11.0.3"
-    // ModMenu dev runtime for MC 1.21.1
-    modLocalRuntime "com.terraformersmc:modmenu:11.0.3"
+    modCompileOnly "com.terraformersmc:modmenu:9.0.0"
+    // ModMenu dev runtime for MC 1.20.4
+    modLocalRuntime "com.terraformersmc:modmenu:9.0.0"
 }
 
 processResources {
@@ -54,7 +54,7 @@ processResources {
     }
 }
 
-def targetJavaVersion = 21
+def targetJavaVersion = 17
 tasks.withType(JavaCompile).configureEach {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly
