@@ -2,7 +2,7 @@ package com.lithumc.mixin;
 
 import com.lithumc.config.AbfConfig;
 import net.minecraft.core.Registry;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -144,7 +144,7 @@ public abstract class FishingHookMixin {
         if (total <= 0) {
             if (cfg.debugMode) {
                 LOGGER.info("[AnythingButFish] All chances are 0 - no loot generated.");
-                player.sendSystemMessage(Component.literal("[ABF] All chances are 0 - no loot."));
+                player.sendMessage(new TextComponent("[ABF] All chances are 0 - no loot."), player.getUUID());
             }
             return;
         }
@@ -162,7 +162,7 @@ public abstract class FishingHookMixin {
                     SoundEvents.FISHING_BOBBER_SPLASH, SoundSource.NEUTRAL, 0.25F, 1.0F);
             if (cfg.debugMode) {
                 LOGGER.info("[AnythingButFish] The one that got away...");
-                player.sendSystemMessage(Component.literal("[ABF] The one that got away..."));
+                player.sendMessage(new TextComponent("[ABF] The one that got away..."), player.getUUID());
             }
         }
     }
@@ -209,7 +209,7 @@ public abstract class FishingHookMixin {
         if (cfg.debugMode) {
             String msg = "[ABF] Item: " + getItemId(chosen) + " x" + count;
             LOGGER.info("[AnythingButFish] {}", msg);
-            player.sendSystemMessage(Component.literal(msg));
+            player.sendMessage(new TextComponent(msg), player.getUUID());
         }
     }
 
@@ -252,7 +252,7 @@ public abstract class FishingHookMixin {
                 if (cfg.debugMode) {
                     String msg = "[ABF] Entity: " + getEntityTypeId(type);
                     LOGGER.info("[AnythingButFish] {}", msg);
-                    player.sendSystemMessage(Component.literal(msg));
+                    player.sendMessage(new TextComponent(msg), player.getUUID());
                 }
             }
         } catch (Exception e) {
@@ -283,7 +283,7 @@ public abstract class FishingHookMixin {
         if (cfg.debugMode) {
             String msg = "[ABF] XP: " + xp;
             LOGGER.info("[AnythingButFish] {}", msg);
-            player.sendSystemMessage(Component.literal(msg));
+            player.sendMessage(new TextComponent(msg), player.getUUID());
         }
     }
 
