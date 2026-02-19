@@ -103,7 +103,7 @@ public class AbfConfig {
     // -----------------------------------------------------------------------
 
     public int itemCountMin = 1;
-    public int itemCountMax = 3;
+    public int itemCountMax = 1;
 
     /**
      * Weighted item pool. Empty = use full registry.
