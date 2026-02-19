@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * existing pool entries. The "replace" behavior is approximated by adding a fresh rod
  * pool alongside the existing one. For a true replacement, a data pack would be needed.
  *
- * MC 1.20.4 port: uses loot-api-v2 (LootTableEvents with ResourceLocation parameter).
+ * MC 1.20.4 port: uses loot-api-v2 (LootTableEvents with ResourceLocation id parameter).
  */
 public class AnythingButFish implements ModInitializer {
 
@@ -53,12 +53,11 @@ public class AnythingButFish implements ModInitializer {
      * Uses Fabric API loot-api-v2 LootTableEvents.MODIFY for MC 1.20.4.
      */
     private void registerLootModifier() {
-        LootTableEvents.MODIFY.register((key, tableBuilder, source) -> {
+        LootTableEvents.MODIFY.register((resourceManager, lootTables, id, tableBuilder, source) -> {
             if (!AbfConfig.get().replaceLootChestRods) return;
 
             // Only patch the world spawn bonus chest
-            ResourceLocation keyId = key.location();
-            if (!"minecraft:chests/spawn_bonus_chest".equals(keyId.toString())) return;
+            if (!"minecraft:chests/spawn_bonus_chest".equals(id.toString())) return;
 
             // Add a pool that gives a fresh (undamaged, unenchanted) fishing rod
             LootPool freshRodPool = LootPool.lootPool()
@@ -66,7 +65,7 @@ public class AnythingButFish implements ModInitializer {
                     .add(LootItem.lootTableItem(Items.FISHING_ROD))
                     .build();
 
-            tableBuilder.pool(freshRodPool);
+            tableBuilder.withPool(freshRodPool);
 
             if (AbfConfig.get().debugMode) {
                 LOGGER.info("[AnythingButFish] Added fresh rod to spawn_bonus_chest loot table.");
