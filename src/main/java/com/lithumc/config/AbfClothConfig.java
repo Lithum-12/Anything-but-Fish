@@ -18,7 +18,7 @@ public class AbfClothConfig {
     public static Screen createScreen(Screen parent) {
         ConfigBuilder builder = ConfigBuilder.create()
                 .setParentScreen(parent)
-                .setTitle(new Trans.latableComponent("config.anythingbutfish.title"))
+                .setTitle(new TranslatableComponent("config.anythingbutfish.title"))
                 .setSavingRunnable(() -> {
                     AbfConfig.get().save();
                     AbfConfig.reload();
