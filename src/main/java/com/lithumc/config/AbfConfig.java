@@ -15,7 +15,6 @@ import java.util.List;
  * Config file: .minecraft/config/anythingbutfish.json
  */
 public class AbfConfig {
-
     // -----------------------------------------------------------------------
     // Weighted entry types
     // -----------------------------------------------------------------------

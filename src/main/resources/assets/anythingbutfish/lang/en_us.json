@@ -4,6 +4,12 @@
 
   "config.anythingbutfish.title": "AnythingButFish Config",
 
+  "config.anythingbutfish.category.general": "General",
+  "config.anythingbutfish.category.chances": "Drop Chances",
+  "config.anythingbutfish.category.items": "Item Settings",
+  "config.anythingbutfish.category.xp": "XP Settings",
+  "config.anythingbutfish.category.physics": "Fling Physics",
+
   "config.anythingbutfish.cat.general": "General",
   "config.anythingbutfish.cat.general.tooltip": "Configure drop chances, item counts, XP amounts, and fling physics.",
   "config.anythingbutfish.cat.misc": "Miscellaneous",

@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.6-SNAPSHOT'
+    id 'fabric-loom' version '1.0-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -20,11 +20,8 @@ repositories {
     // Fabric Maven
     maven { url 'https://maven.fabricmc.net/' }
     
-    // Xander Maven – hosts YetAnotherConfigLib
-    maven {
-        name 'Xander Maven'
-        url 'https://maven.isxander.dev/releases'
-    }
+    // Shedaniel Maven – hosts Cloth Config API
+    maven { url 'https://maven.shedaniel.me/' }
     // ModMenu is hosted on Terraformers Maven
     maven { url = "https://maven.terraformersmc.com/releases" }
 }
@@ -37,16 +34,19 @@ dependencies {
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    // YetAnotherConfigLib – optional at runtime, required at compile time for the GUI code
-    // Players who don't have YACL installed will still work fine (JSON config only)
-    modCompileOnly "dev.isxander:yet-another-config-lib:${project.yacl_version}"
-    // Make YACL available in runClient/runServer dev environments
-    modLocalRuntime "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+    // Cloth Config API – replaces YACL for MC 1.19.x
+    modApi("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+    // Include Cloth Config in the jar
+    include("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 
     // ModMenu – optional at runtime, compile-only for the ModMenuApi interface
-    modCompileOnly "com.terraformersmc:modmenu:7.2.2"
-    // ModMenu dev runtime for MC 1.20.1
-    modLocalRuntime "com.terraformersmc:modmenu:7.2.2"
+    modCompileOnly "com.terraformersmc:modmenu:4.2.0-beta.2"
+    // ModMenu dev runtime for MC 1.19.2
+    modLocalRuntime "com.terraformersmc:modmenu:4.2.0-beta.2"
 }
 
 processResources {
