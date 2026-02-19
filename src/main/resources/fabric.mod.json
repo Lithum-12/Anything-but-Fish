@@ -8,9 +8,11 @@
     "LithumC"
   ],
   "contact": {
-    "sources": "https://github.com/lithumc/AnythingButFishMod"
+    "homepage": "https://modrinth.com/project/anything-but-fish",
+    "sources": "https://github.com/Lithum-12/Anything-but-Fish",
+    "issues": "https://github.com/Lithum-12/Anything-but-Fish/issues"
   },
-  "license": "Unlicense",
+  "license": "MIT",
   "icon": "assets/anythingbutfish/icon.png",
   "environment": "*",
   "entrypoints": {
@@ -28,7 +30,7 @@
     "anythingbutfish.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.18.4",
+    "fabricloader": ">=0.15.0",
     "fabric-api": "*",
     "minecraft": "${minecraft_version}"
   },
