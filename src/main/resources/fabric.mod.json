@@ -29,7 +29,6 @@
   "mixins": [
     "anythingbutfish.mixins.json"
   ],
-  "refmap": "anythingbutfish.refmap.json",
   "depends": {
     "fabricloader": ">=0.15.0",
     "fabric-api": "*",
