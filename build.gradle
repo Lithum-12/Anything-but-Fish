@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.12-SNAPSHOT'
+    id 'fabric-loom' version '1.0-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -20,6 +20,9 @@ repositories {
     // Fabric Maven
     maven { url 'https://maven.fabricmc.net/' }
     
+    // Parchment Maven - for parameter names and javadoc
+    maven { url 'https://maven.parchmentmc.org' }
+    
     // Shedaniel Maven – hosts Cloth Config API
     maven { url 'https://maven.shedaniel.me/' }
     // ModMenu is hosted on Terraformers Maven
@@ -31,7 +34,7 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings loom.layered {
         officialMojangMappings()
-        signatureFix("net.fabricmc:yarn:1.18.2+build.4:v2")
+        parchment("org.parchmentmc.data:parchment-1.18.2:2022.11.06@zip")
     }
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
