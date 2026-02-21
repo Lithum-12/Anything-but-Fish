@@ -62,9 +62,9 @@
   "config.anythingbutfish.flingArc.tooltip": "抛出轨迹的向上弧度倍率。\n值越大，弧度越高（物品先飞高再落下）。\n范围：0.0-1.0，默认：0.08。",
 
   "config.anythingbutfish.itemPool": "物品池条目",
-  "config.anythingbutfish.itemPool.tooltip": "可钓到的加权物品列表。\n§e格式：§rnamespace:name:weight\n§e扩展格式：§rnamespace:name:weight:minCount:maxCount\n§e示例：§rminecraft:diamond:5 或 minecraft:cod:20:1:5\n§7权重为相对值，越高越容易被选中。\n列表为空时，从全部物品注册表中随机选取。§r",
+  "config.anythingbutfish.itemPool.tooltip": "可钓到的加权物品列表。\n§e格式：§rnamespace:name:weight\n§e扩展格式：§rnamespace:name:weight:minCount:maxCount\n§e示例：§rminecraft:diamond:5 或 minecraft:cod:20:1:5\n§7权重为相对值，越高越容易被选中。\n§c将权重设为 -1 可禁用该条目。§r\n列表为空时，从全部物品注册表中随机选取。§r",
   "config.anythingbutfish.entityPool": "实体池条目",
-  "config.anythingbutfish.entityPool.tooltip": "可生成的加权实体列表。\n§e格式：§rnamespace:name:weight\n§e示例：§rminecraft:creeper:3 或 minecraft:pig:10\n§7权重为相对值，越高越容易被选中。\n列表为空时，从全部实体注册表中随机选取。§r",
+  "config.anythingbutfish.entityPool.tooltip": "可生成的加权实体列表。\n§e格式：§rnamespace:name:weight\n§e示例：§rminecraft:creeper:3 或 minecraft:pig:10\n§7权重为相对值，越高越容易被选中。\n§c将权重设为 -1 可禁用该条目。§r\n列表为空时，从全部实体注册表中随机选取。§r",
 
   "modmenu.nameTranslation.anythingbutfish": "就是不钓鱼",
   "modmenu.descriptionTranslation.anythingbutfish": "将原版钓鱼战利品替换为完全随机的物品、实体和经验球。谁知道下一竿会钓到什么？"
