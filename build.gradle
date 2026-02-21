@@ -32,10 +32,8 @@ repositories {
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.layered {
-        officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-1.18.2:2022.11.06@zip")
-    }
+    // 使用纯Mojang mappings替代Parchment
+    mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
@@ -55,12 +53,6 @@ dependencies {
     modLocalRuntime "com.terraformersmc:modmenu:3.2.5"
 }
 
-// Mixin configuration - ensures refMap is generated correctly for production
-loom {
-    mixin {
-        defaultRefmapName = "anythingbutfish.refmap.json"
-    }
-}
 
 processResources {
     inputs.property "version", project.version
