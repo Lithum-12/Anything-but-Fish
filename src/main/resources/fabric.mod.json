@@ -12,7 +12,7 @@
     "sources": "https://github.com/Lithum-12/Anything-but-Fish",
     "issues": "https://github.com/Lithum-12/Anything-but-Fish/issues"
   },
-  "license": "MIT",
+  "license": "LGPLv3",
   "icon": "assets/anythingbutfish/icon.png",
   "environment": "*",
   "entrypoints": {
