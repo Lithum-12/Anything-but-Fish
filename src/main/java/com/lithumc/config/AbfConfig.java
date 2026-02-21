@@ -31,6 +31,9 @@ public class AbfConfig {
             this.id = id; this.weight = weight;
             this.minCount = minCount; this.maxCount = maxCount;
         }
+
+        /** Returns true if this entry is disabled (weight = -1) */
+        public boolean isDisabled() { return weight == -1; }
     }
 
     public static class EntityEntry {
@@ -39,6 +42,9 @@ public class AbfConfig {
 
         public EntityEntry() {}
         public EntityEntry(String id, int weight) { this.id = id; this.weight = weight; }
+
+        /** Returns true if this entry is disabled (weight = -1) */
+        public boolean isDisabled() { return weight == -1; }
     }
 
     // -----------------------------------------------------------------------
@@ -187,6 +193,7 @@ public class AbfConfig {
                 w.write("// chanceItem + chanceEntity + chanceXp <= 100; remainder = 'one that got away'\n");
                 w.write("// itemPool/entityPool: {\"id\":\"ns:name\",\"weight\":N} — empty = full registry\n");
                 w.write("// Item entries also support: \"minCount\": N, \"maxCount\": N (-1 = use global)\n");
+                w.write("// Set weight to -1 to disable an item/entity entry\n");
                 GSON.toJson(this, w);
             }
         } catch (Exception e) {
@@ -214,11 +221,12 @@ public class AbfConfig {
 
         if (itemPool == null) itemPool = new ArrayList<>();
         itemPool.removeIf(e -> e == null || e.id == null || e.id.isBlank());
-        itemPool.forEach(e -> e.weight = Math.max(1, e.weight));
+        // Don't auto-clamp weight to 1 - allow -1 for disabled entries
+        itemPool.forEach(e -> { if (e.weight != -1) e.weight = Math.max(1, e.weight); });
 
         if (entityPool == null) entityPool = new ArrayList<>();
         entityPool.removeIf(e -> e == null || e.id == null || e.id.isBlank());
-        entityPool.forEach(e -> e.weight = Math.max(1, e.weight));
+        entityPool.forEach(e -> { if (e.weight != -1) e.weight = Math.max(1, e.weight); });
     }
 
     // -----------------------------------------------------------------------
@@ -236,20 +244,30 @@ public class AbfConfig {
     @SuppressWarnings("unchecked")
     private static <T> T pickWeighted(List<?> pool, java.util.Random rng) {
         if (pool == null || pool.isEmpty()) return null;
+        
+        // Filter out disabled entries (weight = -1) and calculate total weight
+        List<Object> activePool = new java.util.ArrayList<>();
         int totalWeight = 0;
         for (Object e : pool) {
-            if (e instanceof ItemEntry ie) totalWeight += ie.weight;
-            else if (e instanceof EntityEntry ee) totalWeight += ee.weight;
+            if (e instanceof ItemEntry ie && !ie.isDisabled()) {
+                activePool.add(e);
+                totalWeight += ie.weight;
+            } else if (e instanceof EntityEntry ee && !ee.isDisabled()) {
+                activePool.add(e);
+                totalWeight += ee.weight;
+            }
         }
-        if (totalWeight <= 0) return null;
+        
+        if (activePool.isEmpty() || totalWeight <= 0) return null;
+        
         int roll = rng.nextInt(totalWeight);
         int cumulative = 0;
-        for (Object e : pool) {
+        for (Object e : activePool) {
             int w = (e instanceof ItemEntry ie) ? ie.weight : ((EntityEntry) e).weight;
             cumulative += w;
             if (roll < cumulative) return (T) e;
         }
-        return (T) pool.get(pool.size() - 1);
+        return (T) activePool.get(activePool.size() - 1);
     }
 
     // -----------------------------------------------------------------------

@@ -68,7 +68,7 @@
   "config.anythingbutfish.flingArc.tooltip": "Upward arc multiplier for the fling trajectory.\nHigher values = higher arc (items fly up more before coming down).\nRange: 0.0–1.0. Default: 0.08.",
 
   "config.anythingbutfish.itemPool": "Item Pool Entries",
-  "config.anythingbutfish.itemPool.tooltip": "Weighted list of items that can be caught.\n§eFormat:§r 'namespace:name:weight'\n§eExtended:§r 'namespace:name:weight:minCount:maxCount'\n§eExample:§r 'minecraft:diamond:5' or 'minecraft:cod:20:1:5'\n§7Weight is relative — higher weight = more likely to be picked.\nLeave the list empty to pick randomly from the entire item registry.§r",
+  "config.anythingbutfish.itemPool.tooltip": "Weighted list of items that can be caught.\n§eFormat:§r 'namespace:name:weight'\n§eExtended:§r 'namespace:name:weight:minCount:maxCount'\n§eExample:§r 'minecraft:diamond:5' or 'minecraft:cod:20:1:5'\n§7Weight is relative — higher weight = more likely to be picked.\n§cSet weight to -1 to disable an entry.§r\nLeave the list empty to pick randomly from the entire item registry.§r",
   "config.anythingbutfish.entityPool": "Entity Pool Entries",
-  "config.anythingbutfish.entityPool.tooltip": "Weighted list of entities that can be spawned.\n§eFormat:§r 'namespace:name:weight'\n§eExample:§r 'minecraft:creeper:3' or 'minecraft:pig:10'\n§7Weight is relative — higher weight = more likely to be picked.\nLeave the list empty to pick randomly from the entire entity registry.§r"
+  "config.anythingbutfish.entityPool.tooltip": "Weighted list of entities that can be spawned.\n§eFormat:§r 'namespace:name:weight'\n§eExample:§r 'minecraft:creeper:3' or 'minecraft:pig:10'\n§7Weight is relative — higher weight = more likely to be picked.\n§cSet weight to -1 to disable an entry.§r\nLeave the list empty to pick randomly from the entire entity registry.§r"
 }
