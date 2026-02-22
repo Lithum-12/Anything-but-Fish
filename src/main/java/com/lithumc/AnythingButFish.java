@@ -54,7 +54,11 @@ public class AnythingButFish implements ModInitializer {
             // Only modify built-in loot tables, not datapack ones
             if (!source.isBuiltin()) return;
             
-            if (!AbfConfig.get().replaceLootChestRods) return;
+            boolean replaceRods = AbfConfig.get().replaceLootChestRods;
+            LOGGER.info("[AnythingButFish] LootTable event: key={}, source.isBuiltin={}, replaceLootChestRods={}", 
+                    key, source.isBuiltin(), replaceRods);
+            
+            if (!replaceRods) return;
 
             // Only patch the world spawn bonus chest
             if (!"minecraft:chests/spawn_bonus_chest".equals(key.toString())) return;
