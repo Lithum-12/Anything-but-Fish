@@ -50,12 +50,6 @@ dependencies {
     modLocalRuntime "com.terraformersmc:modmenu:7.2.2"
 }
 
-// Mixin configuration - ensures refMap is generated correctly for production
-loom {
-    mixin {
-        defaultRefmapName = "anythingbutfish.refmap.json"
-    }
-}
 
 processResources {
     inputs.property "version", project.version
