@@ -51,6 +51,9 @@ public class AnythingButFish implements ModInitializer {
      */
     private void registerLootModifier() {
         LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
+            // Only modify built-in loot tables, not datapack ones
+            if (!source.isBuiltin()) return;
+            
             if (!AbfConfig.get().replaceLootChestRods) return;
 
             // Only patch the world spawn bonus chest
