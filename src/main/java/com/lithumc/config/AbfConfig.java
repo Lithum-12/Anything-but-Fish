@@ -164,7 +164,7 @@ public class AbfConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private static Path configPath() {
-        return FabricLoader.getInstance().getConfigDir().resolve("anythingbutfish.json");
+        return FabricLoader.getInstance().getConfigDir().resolve("anythingbutfish.json5");
     }
 
     public static AbfConfig load() {
@@ -190,11 +190,25 @@ public class AbfConfig {
         try {
             path.getParent().toFile().mkdirs();
             try (Writer w = new OutputStreamWriter(new FileOutputStream(path.toFile()), StandardCharsets.UTF_8)) {
-                w.write("// AnythingButFish Configuration\n");
-                w.write("// chanceItem + chanceEntity + chanceXp <= 100; remainder = 'one that got away'\n");
-                w.write("// itemPool/entityPool: {\"id\":\"ns:name\",\"weight\":N} — empty = full registry\n");
-                w.write("// Item entries also support: \"minCount\": N, \"maxCount\": N (-1 = use global)\n");
-                w.write("// Set weight to -1 to disable an item/entity entry\n");
+                // JSON5 supports // and /* */ comments
+                w.write("/*\n");
+                w.write(" * AnythingButFish Configuration File\n");
+                w.write(" * \n");
+                w.write(" * How loot probabilities work:\n");
+                w.write(" * - chanceItem + chanceEntity + chanceXp should be <= 100\n");
+                w.write(" * - Any remainder (100 - total) is the chance of catching nothing\n");
+                w.write(" * \n");
+                w.write(" * Custom item/entity pools:\n");
+                w.write(" * - Leave itemPool/entityPool empty to use full registry (random from all items/entities)\n");
+                w.write(" * - Format: {\"id\": \"namespace:item_name\", \"weight\": N}\n");
+                w.write(" * - For items: also supports \"minCount\": N and \"maxCount\": N (-1 = use global settings)\n");
+                w.write(" * - Set weight to -1 to disable a specific item/entity entry\n");
+                w.write(" * \n");
+                w.write(" * Examples:\n");
+                w.write(" *   {\"id\": \"minecraft:diamond\", \"weight\": 5}\n");
+                w.write(" *   {\"id\": \"minecraft:creeper\", \"weight\": 3, \"minCount\": 1, \"maxCount\": 3}\n");
+                w.write(" */\n");
+                w.write("\n");
                 GSON.toJson(this, w);
             }
         } catch (Exception e) {
