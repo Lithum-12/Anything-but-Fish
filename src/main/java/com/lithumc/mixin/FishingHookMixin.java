@@ -59,16 +59,13 @@ public abstract class FishingHookMixin {
             "minecraft:debug_stick",
             "minecraft:written_book",
             "minecraft:knowledge_book",
-            "minecraft:spawn_egg",
-            "minecraft:firework_rocket"
+            "minecraft:light"
     );
 
     // Dangerous mobs that are restricted by default
     private static final Set<String> DANGEROUS_MOBS = Sets.newHashSet(
             "minecraft:ender_dragon",
-            "minecraft:wither",
-            "minecraft:wither_skull",
-            "minecraft:evoker_fangs"
+            "minecraft:wither"
     );
 
     @Unique
