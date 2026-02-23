@@ -31,10 +31,13 @@ Supports Fabric 1.21.11,1.21.1,1.20.4,1.20.1,1.19.2,1.18.2,1.17.1
 Mod Menu and [Yet Another Config Lib](https://modrinth.com/mod/yacl) / [Cloth Config API](https://modrinth.com/mod/cloth-config) are optional – not required.
 
 ### Feedback
+
 If you have any suggestions, please let me know! I am open to any ideas for new features or improvements.
 
 If you find any bugs, please report them on the GitHub issue tracker or on the Modrinth page.
 
 ### License
+
 This mod is licensed under the LGPLv3 License. You can find the full license text in the LICENSE file included with the mod.
+
 This mod is not affiliated with Mojang AB or Microsoft Corporation. All rights reserved to their respective owners.
