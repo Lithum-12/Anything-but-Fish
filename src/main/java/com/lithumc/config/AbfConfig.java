@@ -95,6 +95,24 @@ public class AbfConfig {
      */
     public boolean allowModdedEntities = true;
 
+    /**
+     * Allow admin/gamemode items in the random item pool.
+     * Only applies when itemPool is empty (full-registry random mode).
+     * Includes: command blocks, structure blocks, jigsaw blocks, barrier, written books, debug sticks, etc.
+     * When false, admin items are excluded from the random pool.
+     * When true, admin items may appear as loot.
+     */
+    public boolean allowAdminItems = false;
+
+    /**
+     * Allow dangerous mobs in the random entity pool.
+     * Only applies when entityPool is empty (full-registry random mode).
+     * Includes: Ender Dragon, Wither, etc.
+     * When false, dangerous mobs are excluded from the random pool.
+     * When true, dangerous mobs may appear as loot.
+     */
+    public boolean allowDangerousMobs = false;
+
     // -----------------------------------------------------------------------
     // Chance settings
     // -----------------------------------------------------------------------
