@@ -28,6 +28,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
+
+import com.google.common.collect.Sets;
 
 /**
  * Mixin targeting FishingHook to replace vanilla fishing loot.
@@ -42,6 +45,31 @@ public abstract class FishingHookMixin {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("anythingbutfish");
     private static final Random RANDOM = new Random();
+
+    // Admin/gamemode items that are restricted by default
+    private static final Set<String> ADMIN_ITEMS = Sets.newHashSet(
+            "minecraft:command_block",
+            "minecraft:chain_command_block",
+            "minecraft:repeating_command_block",
+            "minecraft:command_block_minecart",
+            "minecraft:structure_block",
+            "minecraft:structure_void",
+            "minecraft:jigsaw_block",
+            "minecraft:barrier",
+            "minecraft:debug_stick",
+            "minecraft:written_book",
+            "minecraft:knowledge_book",
+            "minecraft:spawn_egg",
+            "minecraft:firework_rocket"
+    );
+
+    // Dangerous mobs that are restricted by default
+    private static final Set<String> DANGEROUS_MOBS = Sets.newHashSet(
+            "minecraft:ender_dragon",
+            "minecraft:wither",
+            "minecraft:wither_skull",
+            "minecraft:evoker_fangs"
+    );
 
     @Unique
     private boolean abf$wasInWater = false;
@@ -171,10 +199,22 @@ public abstract class FishingHookMixin {
             minCount = entry.minCount >= 1 ? entry.minCount : cfg.itemCountMin;
             maxCount = entry.maxCount >= minCount ? entry.maxCount : cfg.itemCountMax;
         } else {
-            // Full-registry random mode: filter by allowModdedItems
+            // Full-registry random mode: filter by allowModdedItems and allowAdminItems
             List<Item> allItems = BuiltInRegistries.ITEM.stream()
-                    .filter(item -> cfg.allowModdedItems ||
-                            "minecraft".equals(BuiltInRegistries.ITEM.getKey(item).getNamespace()))
+                    .filter(item -> {
+                        // First check namespace (modded items)
+                        if (!cfg.allowModdedItems && !"minecraft".equals(BuiltInRegistries.ITEM.getKey(item).getNamespace())) {
+                            return false;
+                        }
+                        // Then check admin items (only when allowAdminItems is false)
+                        if (!cfg.allowAdminItems) {
+                            String itemId = BuiltInRegistries.ITEM.getKey(item).toString();
+                            if (ADMIN_ITEMS.contains(itemId)) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    })
                     .toList();
             if (allItems.isEmpty()) return;
             chosen = allItems.get(RANDOM.nextInt(allItems.size()));
@@ -214,11 +254,23 @@ public abstract class FishingHookMixin {
             }
             trySpawn(opt.get(), hook, level, player, cfg);
         } else {
-            // Full-registry random mode: filter by allowModdedEntities
+            // Full-registry random mode: filter by allowModdedEntities and allowDangerousMobs
             List<EntityType<?>> safeTypes = BuiltInRegistries.ENTITY_TYPE.stream()
                     .filter(et -> et != EntityType.PLAYER && et != EntityType.FISHING_BOBBER)
-                    .filter(et -> cfg.allowModdedEntities ||
-                            "minecraft".equals(BuiltInRegistries.ENTITY_TYPE.getKey(et).getNamespace()))
+                    .filter(et -> {
+                        // First check namespace (modded entities)
+                        if (!cfg.allowModdedEntities && !"minecraft".equals(BuiltInRegistries.ENTITY_TYPE.getKey(et).getNamespace())) {
+                            return false;
+                        }
+                        // Then check dangerous mobs (only when allowDangerousMobs is false)
+                        if (!cfg.allowDangerousMobs) {
+                            String entityId = BuiltInRegistries.ENTITY_TYPE.getKey(et).toString();
+                            if (DANGEROUS_MOBS.contains(entityId)) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    })
                     .toList();
             if (safeTypes.isEmpty()) return;
             trySpawn(safeTypes.get(RANDOM.nextInt(safeTypes.size())), hook, level, player, cfg);
