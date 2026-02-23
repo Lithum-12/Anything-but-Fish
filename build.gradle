@@ -48,9 +48,9 @@ dependencies {
     }
 
     // ModMenu 2.x for MC 1.17.x - optional at runtime, compile-only
-    modCompileOnly "com.terraformersmc:modmenu:2.2.0"
+    modCompileOnly "com.terraformersmc:modmenu:2.0.17"
     // ModMenu dev runtime for MC 1.17.1
-    modLocalRuntime "com.terraformersmc:modmenu:2.2.0"
+    modLocalRuntime "com.terraformersmc:modmenu:2.0.17"
 }
 
 
