@@ -5,8 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "anythingbutfishmod-refmap.json",
   "mixins": [
-    "FishingHookMixin",
-    "FishingRodDurabilityMixin"
+    "FishingHookMixin"
   ],
   "client": [],
   "injectors": {
