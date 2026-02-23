@@ -62,6 +62,18 @@ public class AbfClothConfig {
                 .setTooltip(Component.translatable("config.anythingbutfish.allowModdedEntities.tooltip"))
                 .setSaveConsumer(val -> config.allowModdedEntities = val)
                 .build());
+        
+        general.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.anythingbutfish.allowAdminItems"), config.allowAdminItems)
+                .setDefaultValue(false)
+                .setTooltip(Component.translatable("config.anythingbutfish.allowAdminItems.tooltip"))
+                .setSaveConsumer(val -> config.allowAdminItems = val)
+                .build());
+        
+        general.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.anythingbutfish.allowDangerousMobs"), config.allowDangerousMobs)
+                .setDefaultValue(false)
+                .setTooltip(Component.translatable("config.anythingbutfish.allowDangerousMobs.tooltip"))
+                .setSaveConsumer(val -> config.allowDangerousMobs = val)
+                .build());
 
         // Chances category
         ConfigCategory chances = builder.getOrCreateCategory(Component.translatable("config.anythingbutfish.category.chances"));
