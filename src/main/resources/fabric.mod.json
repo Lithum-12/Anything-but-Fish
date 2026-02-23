@@ -32,11 +32,10 @@
   "refmap": "anythingbutfish.refmap.json",
   "depends": {
     "fabricloader": ">=0.14.0",
-    "fabric-api": "*",
     "minecraft": "${minecraft_version}"
   },
   "suggests": {
-    "cloth-config": ">=6.0.0",
+    "cloth-config": "*",
     "modmenu": "*"
   }
 }
