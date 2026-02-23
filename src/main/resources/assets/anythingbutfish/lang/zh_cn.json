@@ -48,6 +48,10 @@
   "config.anythingbutfish.allowModdedItems.tooltip": "控制随机物品池是否包含模组物品。\n§a开启§r：所有命名空间（原版 + 模组）的物品均可被钓到，什么都有可能！\n§c关闭§r：只有原版 Minecraft 物品（minecraft: 命名空间）可以被钓到。\n§7注意：仅在物品池列表为空（全注册表随机模式）时生效。自定义物品池条目不受影响。§r",
   "config.anythingbutfish.allowModdedEntities": "允许生成 Mod 实体",
   "config.anythingbutfish.allowModdedEntities.tooltip": "控制随机实体池是否包含模组实体。\n§a开启§r：所有命名空间（原版 + 模组）的实体均可被生成。\n§c关闭§r：只有原版 Minecraft 实体（minecraft: 命名空间）可以被生成。\n§7注意：仅在实体池列表为空（全注册表随机模式）时生效。自定义实体池条目不受影响。§r",
+  "config.anythingbutfish.allowAdminItems": "允许管理员物品",
+  "config.anythingbutfish.allowAdminItems.tooltip": "控制随机物品池是否包含管理员/游戏模式物品。\n包括：命令方块、结构方块、拼图方块、屏障、调试棒、已编写书籍、知识之书、光源方块等。\n§a开启§r：管理员物品可能作为战利品出现。\n§c关闭§r：管理员物品被排除在随机池外。\n§7注意：仅在物品池列表为空（全注册表随机模式）时生效。自定义物品池条目不受影响。§r",
+  "config.anythingbutfish.allowDangerousMobs": "允许危险生物",
+  "config.anythingbutfish.allowDangerousMobs.tooltip": "控制随机实体池是否包含危险生物。\n包括：末影龙、凋零等。\n§a开启§r：危险生物可能作为战利品出现。\n§c关闭§r：危险生物被排除在随机池外。\n§7注意：仅在实体池列表为空（全注册表随机模式）时生效。自定义实体池条目不受影响。§r",
 
   "config.anythingbutfish.chanceItem": "物品掉落概率（%）",
   "config.anythingbutfish.chanceItem.tooltip": "收杆时钓到随机物品的概率。\n范围：0-100。§c设为 0% 可完全禁用物品掉落。§r\n三项概率之和剩余的部分为跑掉了的概率。",
