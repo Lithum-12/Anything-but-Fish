@@ -8,9 +8,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
@@ -28,9 +28,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.Set;
-
-import com.google.common.collect.Sets;
 
 /**
  * Mixin targeting FishingHook to replace vanilla fishing loot.
@@ -39,6 +36,8 @@ import com.google.common.collect.Sets;
  * use the same net.minecraft.world.entity.projectile.FishingHook class,
  * this mixin automatically covers modded rods that use the vanilla hook entity.
  * The moddedRodCompat config flag is informational.
+ *
+ * MC 1.21.1 port: uses MobSpawnType instead of EntitySpawnReason.
  */
 @Mixin(FishingHook.class)
 public abstract class FishingHookMixin {
@@ -47,7 +46,7 @@ public abstract class FishingHookMixin {
     private static final Random RANDOM = new Random();
 
     // Admin/gamemode items that are restricted by default
-    private static final Set<String> ADMIN_ITEMS = Sets.newHashSet(
+    private static final java.util.Set<String> ADMIN_ITEMS = java.util.Set.of(
             "minecraft:command_block",
             "minecraft:chain_command_block",
             "minecraft:repeating_command_block",
@@ -63,7 +62,7 @@ public abstract class FishingHookMixin {
     );
 
     // Dangerous mobs that are restricted by default
-    private static final Set<String> DANGEROUS_MOBS = Sets.newHashSet(
+    private static final java.util.Set<String> DANGEROUS_MOBS = java.util.Set.of(
             "minecraft:ender_dragon",
             "minecraft:wither"
     );
@@ -197,8 +196,6 @@ public abstract class FishingHookMixin {
             maxCount = entry.maxCount >= minCount ? entry.maxCount : cfg.itemCountMax;
         } else {
             // Full-registry random mode: filter by allowModdedItems and allowAdminItems
-            // Use BuiltInRegistries.ITEM directly - it contains all registered items including modded ones
-            // when loaded through Fabric's mod loading system
             List<Item> allItems = BuiltInRegistries.ITEM.stream()
                     .filter(item -> {
                         // First check namespace (modded items)
@@ -254,8 +251,6 @@ public abstract class FishingHookMixin {
             trySpawn(opt.get(), hook, level, player, cfg);
         } else {
             // Full-registry random mode: filter by allowModdedEntities and allowDangerousMobs
-            // Use BuiltInRegistries.ENTITY_TYPE directly - it contains all registered entities including modded ones
-            // when loaded through Fabric's mod loading system
             List<EntityType<?>> safeTypes = BuiltInRegistries.ENTITY_TYPE.stream()
                     .filter(et -> et != EntityType.PLAYER && et != EntityType.FISHING_BOBBER)
                     .filter(et -> {
@@ -282,7 +277,8 @@ public abstract class FishingHookMixin {
                                                      ServerLevel level, ServerPlayer player,
                                                      AbfConfig cfg) {
         try {
-            T entity = type.create(level, EntitySpawnReason.COMMAND);
+            // MC 1.20.4: EntityType.create requires 7 parameters
+            T entity = type.create(level, null, null, hook.blockPosition(), MobSpawnType.COMMAND, false, false);
             if (entity != null) {
                 double x = hook.getX(), y = hook.getY(), z = hook.getZ();
                 entity.setPos(x, y, z);
@@ -298,7 +294,7 @@ public abstract class FishingHookMixin {
         } catch (Exception e) {
             LOGGER.warn("[AnythingButFish] Failed to spawn {}: {}", type, e.getMessage());
             try {
-                var pig = EntityType.PIG.create(level, EntitySpawnReason.COMMAND);
+                var pig = EntityType.PIG.create(level, null, null, hook.blockPosition(), MobSpawnType.COMMAND, false, false);
                 if (pig != null) {
                     pig.setPos(hook.getX(), hook.getY(), hook.getZ());
                     applyArc(pig, hook.getX(), hook.getY(), hook.getZ(), player, cfg);
