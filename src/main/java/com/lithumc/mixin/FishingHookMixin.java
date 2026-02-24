@@ -2,6 +2,7 @@ package com.lithumc.mixin;
 
 import com.lithumc.config.AbfConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -197,15 +198,19 @@ public abstract class FishingHookMixin {
             maxCount = entry.maxCount >= minCount ? entry.maxCount : cfg.itemCountMax;
         } else {
             // Full-registry random mode: filter by allowModdedItems and allowAdminItems
-            List<Item> allItems = BuiltInRegistries.ITEM.stream()
+            // Use level.registryAccess() to get ALL registered items including modded ones
+            var registryAccess = level.registryAccess();
+            var itemRegistry = registryAccess.registryOrThrow(Registries.ITEM);
+            
+            List<Item> allItems = itemRegistry.stream()
                     .filter(item -> {
                         // First check namespace (modded items)
-                        if (!cfg.allowModdedItems && !"minecraft".equals(BuiltInRegistries.ITEM.getKey(item).getNamespace())) {
+                        if (!cfg.allowModdedItems && !"minecraft".equals(itemRegistry.getKey(item).getNamespace())) {
                             return false;
                         }
                         // Then check admin items (only when allowAdminItems is false)
                         if (!cfg.allowAdminItems) {
-                            String itemId = BuiltInRegistries.ITEM.getKey(item).toString();
+                            String itemId = itemRegistry.getKey(item).toString();
                             if (ADMIN_ITEMS.contains(itemId)) {
                                 return false;
                             }
@@ -252,16 +257,20 @@ public abstract class FishingHookMixin {
             trySpawn(opt.get(), hook, level, player, cfg);
         } else {
             // Full-registry random mode: filter by allowModdedEntities and allowDangerousMobs
-            List<EntityType<?>> safeTypes = BuiltInRegistries.ENTITY_TYPE.stream()
+            // Use level.registryAccess() to get ALL registered entities including modded ones
+            var registryAccess = level.registryAccess();
+            var entityTypeRegistry = registryAccess.registryOrThrow(Registries.ENTITY_TYPE);
+            
+            List<EntityType<?>> safeTypes = entityTypeRegistry.stream()
                     .filter(et -> et != EntityType.PLAYER && et != EntityType.FISHING_BOBBER)
                     .filter(et -> {
                         // First check namespace (modded entities)
-                        if (!cfg.allowModdedEntities && !"minecraft".equals(BuiltInRegistries.ENTITY_TYPE.getKey(et).getNamespace())) {
+                        if (!cfg.allowModdedEntities && !"minecraft".equals(entityTypeRegistry.getKey(et).getNamespace())) {
                             return false;
                         }
                         // Then check dangerous mobs (only when allowDangerousMobs is false)
                         if (!cfg.allowDangerousMobs) {
-                            String entityId = BuiltInRegistries.ENTITY_TYPE.getKey(et).toString();
+                            String entityId = entityTypeRegistry.getKey(et).toString();
                             if (DANGEROUS_MOBS.contains(entityId)) {
                                 return false;
                             }
