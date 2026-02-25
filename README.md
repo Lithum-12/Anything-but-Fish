@@ -4,8 +4,8 @@
 
 You can now use the fishing rod to catch any item, including entities and objects.
 
-[![Modrinth Downloads](https://img.shields.io/modrinth/dt/sk9rgfiA?label=Modrinth&labelColor=%232D2D2D)](https://modrinth.com/mod/)
-[![Modrinth Version](https://img.shields.io/modrinth/v/sk9rgfiA?label=Latest%20version&labelColor=%232D2D2D)](https://modrinth.com/mod/anything-but-fish/)
+[![Modrinth Downloads](https://img.shields.io/modrinth/dt/sk9rgfiA?label=Modrinth&labelColor=%232D2D2D)](https://modrinth.com/mod/anything-but-fish)
+[![Modrinth Version](https://img.shields.io/modrinth/v/sk9rgfiA?label=Latest%20version&labelColor=%232D2D2D)](https://modrinth.com/mod/anything-but-fish/versions)
 [![](http://cf.way2muchnoise.eu/versions/Available%20for_anything-but-fish_full.svg)](https://www.curseforge.com/minecraft/mc-mods/anything-but-fish/files)
 
 ### Introduction
@@ -41,5 +41,6 @@ If you find any bugs, please report them on the GitHub issue tracker or on the M
 This mod is licensed under the LGPLv3 License. You can find the full license text in the LICENSE file included with the mod.
 
 This mod is not affiliated with Mojang AB or Microsoft Corporation. All rights reserved to their respective owners.
+
 
 
