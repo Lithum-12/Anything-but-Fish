@@ -41,3 +41,4 @@ If you find any bugs, please report them on the GitHub issue tracker or on the M
 This mod is licensed under the LGPLv3 License. You can find the full license text in the LICENSE file included with the mod.
 
 This mod is not affiliated with Mojang AB or Microsoft Corporation. All rights reserved to their respective owners.
+
