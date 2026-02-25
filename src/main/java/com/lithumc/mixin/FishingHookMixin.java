@@ -10,7 +10,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
@@ -28,6 +28,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Consumer;
 
 /**
  * Mixin targeting FishingHook to replace vanilla fishing loot.
@@ -37,7 +38,7 @@ import java.util.Random;
  * this mixin automatically covers modded rods that use the vanilla hook entity.
  * The moddedRodCompat config flag is informational.
  *
- * MC 1.21.1 port: uses MobSpawnType instead of EntitySpawnReason.
+ * MC 1.21.1+ port: uses EntitySpawnReason.
  */
 @Mixin(FishingHook.class)
 public abstract class FishingHookMixin {
@@ -277,8 +278,8 @@ public abstract class FishingHookMixin {
                                                      ServerLevel level, ServerPlayer player,
                                                      AbfConfig cfg) {
         try {
-            // MC 1.20.4: EntityType.create requires 7 parameters
-            T entity = type.create(level, null, null, hook.blockPosition(), MobSpawnType.COMMAND, false, false);
+            // MC 1.21+: use EntitySpawnReason - 6 params: ServerLevel, Consumer, BlockPos, EntitySpawnReason, boolean, boolean
+            T entity = type.create(level, (Consumer<T>) null, hook.blockPosition(), EntitySpawnReason.COMMAND, false, false);
             if (entity != null) {
                 double x = hook.getX(), y = hook.getY(), z = hook.getZ();
                 entity.setPos(x, y, z);
@@ -294,7 +295,7 @@ public abstract class FishingHookMixin {
         } catch (Exception e) {
             LOGGER.warn("[AnythingButFish] Failed to spawn {}: {}", type, e.getMessage());
             try {
-                var pig = EntityType.PIG.create(level, null, null, hook.blockPosition(), MobSpawnType.COMMAND, false, false);
+                var pig = EntityType.PIG.create(level, null, hook.blockPosition(), EntitySpawnReason.COMMAND, false, false);
                 if (pig != null) {
                     pig.setPos(hook.getX(), hook.getY(), hook.getZ());
                     applyArc(pig, hook.getX(), hook.getY(), hook.getZ(), player, cfg);
