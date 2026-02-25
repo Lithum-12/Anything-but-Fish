@@ -145,7 +145,7 @@ public class AbfYaclConfig {
                                 .option(Option.<Integer>createBuilder()
                                         .name(Component.translatable("config.anythingbutfish.itemCountMax"))
                                         .description(OptionDescription.of(Component.translatable("config.anythingbutfish.itemCountMax.tooltip")))
-                                        .binding(3, () -> cfg.itemCountMax, v -> cfg.itemCountMax = v)
+                                        .binding(1, () -> cfg.itemCountMax, v -> cfg.itemCountMax = v)
                                         .controller(opt -> IntegerSliderControllerBuilder.create(opt).range(1, 64).step(1))
                                         .build())
                                 .build())
