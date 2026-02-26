@@ -71,6 +71,9 @@ public abstract class FishingHookMixin {
     @Unique
     private boolean abf$wasInWater = false;
 
+    @Unique
+    private int abf$retrieveResult = 0;
+
     // -----------------------------------------------------------------------
     // Registry lookup helpers
     // -----------------------------------------------------------------------
@@ -99,6 +102,14 @@ public abstract class FishingHookMixin {
         abf$wasInWater = !self.level().isClientSide() && self.isInWater();
     }
 
+    @Inject(method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I", at = @At("RETURN"))
+    private void abf$afterRetrieveCheck(ItemStack usedItem, CallbackInfoReturnable<Integer> cir) {
+        // Store the return value - if it's > 0, vanilla caught something
+        // We'll use this in the TAIL injection to decide whether to give loot
+        // when waitForBite is enabled
+        abf$retrieveResult = cir.getReturnValue();
+    }
+
     // -----------------------------------------------------------------------
     // TAIL: replace loot after vanilla has run
     // -----------------------------------------------------------------------
@@ -110,6 +121,15 @@ public abstract class FishingHookMixin {
 
         AbfConfig cfg = AbfConfig.get();
         if (!cfg.enabled) return;   // master switch
+
+        // If waitForBite is enabled, only give loot if vanilla actually caught something
+        // retrieve() returns > 0 if something was caught (fish, item, etc.)
+        if (cfg.waitForBite && abf$retrieveResult <= 0) {
+            if (cfg.debugMode) {
+                LOGGER.info("[AnythingButFish] No bite - waiting for a fish to bite!");
+            }
+            return;
+        }
 
         FishingHook self = (FishingHook)(Object) this;
         Level level = self.level();
