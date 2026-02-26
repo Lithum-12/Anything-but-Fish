@@ -111,6 +111,15 @@ public class AbfConfig {
      */
     public boolean allowDangerousMobs = false;
 
+    /**
+     * Wait for a fish to bite before giving random loot.
+     * When false (default): random loot is given every time the player reels in,
+     * regardless of whether anything was caught.
+     * When true: random loot is only given when the fishing hook actually catches
+     * something (like vanilla fishing - you need to wait for a bite).
+     */
+    public boolean waitForBite = false;
+
     // -----------------------------------------------------------------------
     // Chance settings
     // -----------------------------------------------------------------------
