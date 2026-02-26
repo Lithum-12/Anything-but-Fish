@@ -250,6 +250,12 @@ public class AbfYaclConfig {
                                         .binding(false, () -> cfg.allowDangerousMobs, v -> cfg.allowDangerousMobs = v)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
                                         .build())
+                                .option(Option.<Boolean>createBuilder()
+                                        .name(Component.translatable("config.anythingbutfish.waitForBite"))
+                                        .description(OptionDescription.of(Component.translatable("config.anythingbutfish.waitForBite.tooltip")))
+                                        .binding(false, () -> cfg.waitForBite, v -> cfg.waitForBite = v)
+                                        .controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
+                                        .build())
                                 .build())
 
                         .build())
