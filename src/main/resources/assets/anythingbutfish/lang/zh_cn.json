@@ -42,6 +42,8 @@
   "config.anythingbutfish.allowAdminItems.tooltip": "控制随机物品池是否包含管理员/游戏模式物品。\n包括：命令方块、结构方块、拼图方块、屏障、调试棒、已编写书籍、知识之书、光源方块等。\n§a开启§r：管理员物品可能作为战利品出现。\n§c关闭§r：管理员物品被排除在随机池外。\n§7注意：仅在物品池列表为空（全注册表随机模式）时生效。自定义物品池条目不受影响。§r",
   "config.anythingbutfish.allowDangerousMobs": "允许危险生物",
   "config.anythingbutfish.allowDangerousMobs.tooltip": "控制随机实体池是否包含危险生物。\n包括：末影龙、凋零等。\n§a开启§r：危险生物可能作为战利品出现。\n§c关闭§r：危险生物被排除在随机池外。\n§7注意：仅在实体池列表为空（全注册表随机模式）时生效。自定义实体池条目不受影响。§r",
+  "config.anythingbutfish.waitForBite": "等待上钩",
+  "config.anythingbutfish.waitForBite.tooltip": "控制何时给予随机战利品。\n§a开启§r：仅在鱼钩实际上钩时（即有东西咬钩时）才给予随机战利品——需要像原版钓鱼一样等待鱼咬钩。\n§c关闭§r（默认）：无论是否钓到东西，每次收杆都会给予随机战利品。\n§7这模拟了原版钓鱼行为，需要等待浮标下沉后再收杆。§r",
 
   "config.anythingbutfish.chanceItem": "物品掉落概率（%）",
   "config.anythingbutfish.chanceItem.tooltip": "收杆时钓到随机物品的概率。\n范围：0-100。§c设为 0% 可完全禁用物品掉落。§r\n三项概率之和剩余的部分为跑掉了的概率。",
