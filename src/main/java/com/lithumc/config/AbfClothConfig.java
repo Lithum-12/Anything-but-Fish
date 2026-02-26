@@ -77,6 +77,12 @@ public class AbfClothConfig {
                 .setTooltip(new TranslatableComponent("config.anythingbutfish.allowDangerousMobs.tooltip"))
                 .setSaveConsumer(val -> config.allowDangerousMobs = val)
                 .build());
+        
+        general.addEntry(entryBuilder.startBooleanToggle(new TranslatableComponent("config.anythingbutfish.waitForBite"), config.waitForBite)
+                .setDefaultValue(false)
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.waitForBite.tooltip"))
+                .setSaveConsumer(val -> config.waitForBite = val)
+                .build());
 
         // Chances category
         ConfigCategory chances = builder.getOrCreateCategory(new TranslatableComponent("config.anythingbutfish.category.chances"));
