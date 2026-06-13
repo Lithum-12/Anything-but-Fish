@@ -21,7 +21,7 @@
       "com.lithumc.client.anythingbutfishClient"
     ],
     "modmenu": [
-      "com.lithumc.client.anythingbutfishClient"
+      "com.lithumc.client.ModMenuIntegration"
     ]
   },
   "mixins": [
@@ -33,7 +33,7 @@
     "minecraft": "${minecraft_version}"
   },
   "suggests": {
-    "yet_another_config_lib_v3": ">=3.0.0",
-    "modmenu": "*"
+    "yet_another_config_lib_v3": ">=3.9.0",
+    "modmenu": ">=18.0.0-beta.1"
   }
 }

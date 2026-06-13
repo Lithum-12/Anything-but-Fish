@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.15-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -24,20 +24,19 @@ repositories {
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     // YetAnotherConfigLib – optional at runtime, required at compile time for the GUI code
     // Players who don't have YACL installed will still work fine (JSON config only)
-    modCompileOnly "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+    compileOnly "dev.isxander:yet-another-config-lib:${project.yacl_version}"
     // Make YACL available in runClient/runServer dev environments
-    modLocalRuntime "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+    localRuntime "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 
     // ModMenu – optional at runtime, compile-only for the ModMenuApi interface
-    modCompileOnly "com.terraformersmc:modmenu:13.0.0"
-    modLocalRuntime "com.terraformersmc:modmenu:13.0.0"
+    compileOnly "com.terraformersmc:modmenu:18.0.0-beta.1"
+    localRuntime "com.terraformersmc:modmenu:18.0.0-beta.1"
 }
 
 processResources {
@@ -53,7 +52,7 @@ processResources {
     }
 }
 
-def targetJavaVersion = 21
+def targetJavaVersion = 25
 tasks.withType(JavaCompile).configureEach {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly
