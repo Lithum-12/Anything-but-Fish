@@ -14,52 +14,57 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * YACL-based GUI configuration screen for AnythingButFish.
+ * YACL config screen for AnythingButFish.
  *
- * Tab order: 常规 | 杂项 | 物品池 | 实体池
+ * Tab layout:
+ *   常规   – 概率 | 物品数量 | 经验 | 物理
+ *   杂项   – 功能开关 | 钓鱼行为
+ *   物品池 – 池模式 | 注册表筛选器 | 物品列表
+ *   实体池 – 池模式 | 注册表筛选器 | 实体列表
+ *
+ * Pool entry format (no weight):
+ *   Items:    "namespace:name"  or  "namespace:name:minCount:maxCount"
+ *   Entities: "namespace:name"
  */
 @Environment(EnvType.CLIENT)
 public class AbfYaclConfig {
 
     // -----------------------------------------------------------------------
-    // Pool serialization helpers
+    // Serialization helpers
     // -----------------------------------------------------------------------
 
     private static String serializeItem(AbfConfig.ItemEntry e) {
         if (e.minCount > 0 && e.maxCount > 0)
-            return e.id + ":" + e.weight + ":" + e.minCount + ":" + e.maxCount;
-        return e.id + ":" + e.weight;
+            return e.id + ":" + e.minCount + ":" + e.maxCount;
+        return e.id;
     }
 
     private static AbfConfig.ItemEntry parseItem(String s) {
         if (s == null || s.isBlank()) return null;
         String[] parts = s.trim().split(":");
-        if (parts.length < 3) return null;
-        try {
-            String id = parts[0] + ":" + parts[1];
-            int weight = Math.max(1, Integer.parseInt(parts[2]));
-            AbfConfig.ItemEntry entry = new AbfConfig.ItemEntry(id, weight);
-            if (parts.length >= 5) {
-                entry.minCount = Integer.parseInt(parts[3]);
-                entry.maxCount = Integer.parseInt(parts[4]);
-            }
-            return entry;
-        } catch (NumberFormatException e) { return null; }
+        // minimum: "namespace:name" → 2 colon-separated tokens
+        if (parts.length < 2) return null;
+        String id = parts[0] + ":" + parts[1];
+        AbfConfig.ItemEntry entry = new AbfConfig.ItemEntry(id);
+        // optional: "namespace:name:minCount:maxCount" → 4 tokens
+        if (parts.length >= 4) {
+            try {
+                entry.minCount = Integer.parseInt(parts[2]);
+                entry.maxCount = Integer.parseInt(parts[3]);
+            } catch (NumberFormatException ignored) {}
+        }
+        return entry;
     }
 
     private static String serializeEntity(AbfConfig.EntityEntry e) {
-        return e.id + ":" + e.weight;
+        return e.id;
     }
 
     private static AbfConfig.EntityEntry parseEntity(String s) {
         if (s == null || s.isBlank()) return null;
         String[] parts = s.trim().split(":");
-        if (parts.length < 3) return null;
-        try {
-            String id = parts[0] + ":" + parts[1];
-            int weight = Math.max(1, Integer.parseInt(parts[2]));
-            return new AbfConfig.EntityEntry(id, weight);
-        } catch (NumberFormatException e) { return null; }
+        if (parts.length < 2) return null;
+        return new AbfConfig.EntityEntry(parts[0] + ":" + parts[1]);
     }
 
     // -----------------------------------------------------------------------
@@ -69,46 +74,59 @@ public class AbfYaclConfig {
     public static Screen createScreen(Screen parent) {
         AbfConfig cfg = AbfConfig.get();
 
-        List<String> itemPoolStrings = new ArrayList<>();
-        for (AbfConfig.ItemEntry e : cfg.itemPool) itemPoolStrings.add(serializeItem(e));
-
+        // Mutable string mirrors for list options
+        List<String> itemPoolStrings   = new ArrayList<>();
         List<String> entityPoolStrings = new ArrayList<>();
+        for (AbfConfig.ItemEntry   e : cfg.itemPool)   itemPoolStrings.add(serializeItem(e));
         for (AbfConfig.EntityEntry e : cfg.entityPool) entityPoolStrings.add(serializeEntity(e));
 
-        // ListOptions must be added as groups directly to ConfigCategory (not inside OptionGroup)
+        // ── ListOption: 物品列表 ──────────────────────────────────────────
         ListOption<String> itemPoolList = ListOption.<String>createBuilder()
                 .name(Component.translatable("config.anythingbutfish.itemPool"))
-                .description(OptionDescription.of(Component.translatable("config.anythingbutfish.itemPool.tooltip")))
+                .description(OptionDescription.of(
+                        Component.translatable("config.anythingbutfish.itemPool.tooltip")))
                 .binding(new ArrayList<>(), () -> new ArrayList<>(itemPoolStrings), v -> {
-                    itemPoolStrings.clear(); itemPoolStrings.addAll(v);
+                    itemPoolStrings.clear();
+                    itemPoolStrings.addAll(v);
                     cfg.itemPool.clear();
-                    for (String s : v) { AbfConfig.ItemEntry e = parseItem(s); if (e != null) cfg.itemPool.add(e); }
+                    for (String s : v) {
+                        AbfConfig.ItemEntry e = parseItem(s);
+                        if (e != null) cfg.itemPool.add(e);
+                    }
                 })
                 .controller(StringControllerBuilder::create)
-                .initial("minecraft:cod:10")
+                .initial("minecraft:diamond")
                 .build();
 
+        // ── ListOption: 实体列表 ──────────────────────────────────────────
         ListOption<String> entityPoolList = ListOption.<String>createBuilder()
                 .name(Component.translatable("config.anythingbutfish.entityPool"))
-                .description(OptionDescription.of(Component.translatable("config.anythingbutfish.entityPool.tooltip")))
+                .description(OptionDescription.of(
+                        Component.translatable("config.anythingbutfish.entityPool.tooltip")))
                 .binding(new ArrayList<>(), () -> new ArrayList<>(entityPoolStrings), v -> {
-                    entityPoolStrings.clear(); entityPoolStrings.addAll(v);
+                    entityPoolStrings.clear();
+                    entityPoolStrings.addAll(v);
                     cfg.entityPool.clear();
-                    for (String s : v) { AbfConfig.EntityEntry e = parseEntity(s); if (e != null) cfg.entityPool.add(e); }
+                    for (String s : v) {
+                        AbfConfig.EntityEntry e = parseEntity(s);
+                        if (e != null) cfg.entityPool.add(e);
+                    }
                 })
                 .controller(StringControllerBuilder::create)
-                .initial("minecraft:pig:10")
+                .initial("minecraft:pig")
                 .build();
 
         return YetAnotherConfigLib.createBuilder()
                 .title(Component.translatable("config.anythingbutfish.title"))
 
-                // ── Tab 1: 常规 ───────────────────────────────────────────────
+                // ════════════════════════════════════════════════════════════
+                // Tab 1: 常规
+                // ════════════════════════════════════════════════════════════
                 .category(ConfigCategory.createBuilder()
                         .name(Component.translatable("config.anythingbutfish.cat.general"))
                         .tooltip(Component.translatable("config.anythingbutfish.cat.general.tooltip"))
 
-                        // Chances group
+                        // 概率
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("config.anythingbutfish.group.chances"))
                                 .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.chances.desc")))
@@ -132,7 +150,7 @@ public class AbfYaclConfig {
                                         .build())
                                 .build())
 
-                        // Item settings group
+                        // 物品数量
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("config.anythingbutfish.group.items"))
                                 .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.items.desc")))
@@ -145,12 +163,12 @@ public class AbfYaclConfig {
                                 .option(Option.<Integer>createBuilder()
                                         .name(Component.translatable("config.anythingbutfish.itemCountMax"))
                                         .description(OptionDescription.of(Component.translatable("config.anythingbutfish.itemCountMax.tooltip")))
-                                        .binding(3, () -> cfg.itemCountMax, v -> cfg.itemCountMax = v)
+                                        .binding(1, () -> cfg.itemCountMax, v -> cfg.itemCountMax = v)
                                         .controller(opt -> IntegerSliderControllerBuilder.create(opt).range(1, 64).step(1))
                                         .build())
                                 .build())
 
-                        // XP group
+                        // 经验
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("config.anythingbutfish.group.xp"))
                                 .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.xp.desc")))
@@ -168,7 +186,7 @@ public class AbfYaclConfig {
                                         .build())
                                 .build())
 
-                        // Physics group
+                        // 物理参数
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("config.anythingbutfish.group.physics"))
                                 .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.physics.desc")))
@@ -188,11 +206,14 @@ public class AbfYaclConfig {
 
                         .build())
 
-                // ── Tab 2: 杂项 ───────────────────────────────────────────────
+                // ════════════════════════════════════════════════════════════
+                // Tab 2: 杂项
+                // ════════════════════════════════════════════════════════════
                 .category(ConfigCategory.createBuilder()
                         .name(Component.translatable("config.anythingbutfish.cat.misc"))
                         .tooltip(Component.translatable("config.anythingbutfish.cat.misc.tooltip"))
 
+                        // 功能开关
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("config.anythingbutfish.group.switches"))
                                 .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.switches.desc")))
@@ -214,10 +235,16 @@ public class AbfYaclConfig {
                                         .binding(false, () -> cfg.infiniteDurability, v -> cfg.infiniteDurability = v)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
                                         .build())
+                                .build())
+
+                        // 钓鱼行为
+                        .group(OptionGroup.createBuilder()
+                                .name(Component.translatable("config.anythingbutfish.group.behavior"))
+                                .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.behavior.desc")))
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(Component.translatable("config.anythingbutfish.replaceLootChestRods"))
-                                        .description(OptionDescription.of(Component.translatable("config.anythingbutfish.replaceLootChestRods.tooltip")))
-                                        .binding(false, () -> cfg.replaceLootChestRods, v -> cfg.replaceLootChestRods = v)
+                                        .name(Component.translatable("config.anythingbutfish.waitForBite"))
+                                        .description(OptionDescription.of(Component.translatable("config.anythingbutfish.waitForBite.tooltip")))
+                                        .binding(false, () -> cfg.waitForBite, v -> cfg.waitForBite = v)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
@@ -226,16 +253,40 @@ public class AbfYaclConfig {
                                         .binding(true, () -> cfg.moddedRodCompat, v -> cfg.moddedRodCompat = v)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
                                         .build())
+                                .build())
+
+                        .build())
+
+                // ════════════════════════════════════════════════════════════
+                // Tab 3: 物品池
+                // ════════════════════════════════════════════════════════════
+                .category(ConfigCategory.createBuilder()
+                        .name(Component.translatable("config.anythingbutfish.cat.itemPool"))
+                        .tooltip(Component.translatable("config.anythingbutfish.cat.itemPool.tooltip"))
+
+                        // 池模式
+                        .group(OptionGroup.createBuilder()
+                                .name(Component.translatable("config.anythingbutfish.group.itemPoolMode"))
+                                .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.itemPoolMode.desc")))
+                                .option(Option.<Boolean>createBuilder()
+                                        .name(Component.translatable("config.anythingbutfish.itemPoolIsWhitelist"))
+                                        .description(OptionDescription.of(Component.translatable("config.anythingbutfish.itemPoolIsWhitelist.tooltip")))
+                                        .binding(false, () -> cfg.itemPoolIsWhitelist, v -> cfg.itemPoolIsWhitelist = v)
+                                        .controller(opt -> BooleanControllerBuilder.create(opt)
+                                                .valueFormatter(v -> Component.translatable(
+                                                        v ? "config.anythingbutfish.mode.whitelist"
+                                                                : "config.anythingbutfish.mode.blacklist")))
+                                        .build())
+                                .build())
+
+                        // 注册表筛选器（黑名单模式下生效）
+                        .group(OptionGroup.createBuilder()
+                                .name(Component.translatable("config.anythingbutfish.group.itemFilters"))
+                                .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.itemFilters.desc")))
                                 .option(Option.<Boolean>createBuilder()
                                         .name(Component.translatable("config.anythingbutfish.allowModdedItems"))
                                         .description(OptionDescription.of(Component.translatable("config.anythingbutfish.allowModdedItems.tooltip")))
                                         .binding(true, () -> cfg.allowModdedItems, v -> cfg.allowModdedItems = v)
-                                        .controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
-                                        .build())
-                                .option(Option.<Boolean>createBuilder()
-                                        .name(Component.translatable("config.anythingbutfish.allowModdedEntities"))
-                                        .description(OptionDescription.of(Component.translatable("config.anythingbutfish.allowModdedEntities.tooltip")))
-                                        .binding(true, () -> cfg.allowModdedEntities, v -> cfg.allowModdedEntities = v)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
@@ -244,33 +295,53 @@ public class AbfYaclConfig {
                                         .binding(false, () -> cfg.allowAdminItems, v -> cfg.allowAdminItems = v)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
                                         .build())
+                                .build())
+
+                        // 物品列表
+                        .group(itemPoolList)
+                        .build())
+
+                // ════════════════════════════════════════════════════════════
+                // Tab 4: 实体池
+                // ════════════════════════════════════════════════════════════
+                .category(ConfigCategory.createBuilder()
+                        .name(Component.translatable("config.anythingbutfish.cat.entityPool"))
+                        .tooltip(Component.translatable("config.anythingbutfish.cat.entityPool.tooltip"))
+
+                        // 池模式
+                        .group(OptionGroup.createBuilder()
+                                .name(Component.translatable("config.anythingbutfish.group.entityPoolMode"))
+                                .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.entityPoolMode.desc")))
+                                .option(Option.<Boolean>createBuilder()
+                                        .name(Component.translatable("config.anythingbutfish.entityPoolIsWhitelist"))
+                                        .description(OptionDescription.of(Component.translatable("config.anythingbutfish.entityPoolIsWhitelist.tooltip")))
+                                        .binding(false, () -> cfg.entityPoolIsWhitelist, v -> cfg.entityPoolIsWhitelist = v)
+                                        .controller(opt -> BooleanControllerBuilder.create(opt)
+                                                .valueFormatter(v -> Component.translatable(
+                                                        v ? "config.anythingbutfish.mode.whitelist"
+                                                                : "config.anythingbutfish.mode.blacklist")))
+                                        .build())
+                                .build())
+
+                        // 注册表筛选器
+                        .group(OptionGroup.createBuilder()
+                                .name(Component.translatable("config.anythingbutfish.group.entityFilters"))
+                                .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.entityFilters.desc")))
+                                .option(Option.<Boolean>createBuilder()
+                                        .name(Component.translatable("config.anythingbutfish.allowModdedEntities"))
+                                        .description(OptionDescription.of(Component.translatable("config.anythingbutfish.allowModdedEntities.tooltip")))
+                                        .binding(true, () -> cfg.allowModdedEntities, v -> cfg.allowModdedEntities = v)
+                                        .controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
+                                        .build())
                                 .option(Option.<Boolean>createBuilder()
                                         .name(Component.translatable("config.anythingbutfish.allowDangerousMobs"))
                                         .description(OptionDescription.of(Component.translatable("config.anythingbutfish.allowDangerousMobs.tooltip")))
                                         .binding(false, () -> cfg.allowDangerousMobs, v -> cfg.allowDangerousMobs = v)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
                                         .build())
-                                .option(Option.<Boolean>createBuilder()
-                                        .name(Component.translatable("config.anythingbutfish.waitForBite"))
-                                        .description(OptionDescription.of(Component.translatable("config.anythingbutfish.waitForBite.tooltip")))
-                                        .binding(false, () -> cfg.waitForBite, v -> cfg.waitForBite = v)
-                                        .controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
-                                        .build())
                                 .build())
 
-                        .build())
-
-                // ── Tab 3: 物品池 ─────────────────────────────────────────────
-                .category(ConfigCategory.createBuilder()
-                        .name(Component.translatable("config.anythingbutfish.cat.itemPool"))
-                        .tooltip(Component.translatable("config.anythingbutfish.cat.itemPool.tooltip"))
-                        .group(itemPoolList)
-                        .build())
-
-                // ── Tab 4: 实体池 ─────────────────────────────────────────────
-                .category(ConfigCategory.createBuilder()
-                        .name(Component.translatable("config.anythingbutfish.cat.entityPool"))
-                        .tooltip(Component.translatable("config.anythingbutfish.cat.entityPool.tooltip"))
+                        // 实体列表
                         .group(entityPoolList)
                         .build())
 
