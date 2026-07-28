@@ -7,13 +7,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  * AnythingButFish – main mod initializer.
- *
- * MC 1.17.1 version: loot table modifier removed (not compatible)
+ * Loads config and logs startup info.
+ * No loot table modification – loot replacement is handled entirely
+ * by FishingHookMixin at the entity level.
  */
 public class AnythingButFish implements ModInitializer {
 
     public static final String MOD_ID = "anythingbutfish";
-    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    public static final Logger LOGGER  = LoggerFactory.getLogger(MOD_ID);
 
     @Override
     public void onInitialize() {
@@ -22,7 +23,5 @@ public class AnythingButFish implements ModInitializer {
         LOGGER.info("[AnythingButFish] Config: item={}% entity={}% xp={}% gotaway={}%",
                 cfg.chanceItem, cfg.chanceEntity, cfg.chanceXp,
                 100 - cfg.thresholdXp());
-
-        LOGGER.info("[AnythingButFish] MC 1.17.1 - Loot table modifier not available in this version.");
     }
 }

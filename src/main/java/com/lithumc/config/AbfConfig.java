@@ -12,120 +12,84 @@ import java.util.List;
 
 /**
  * Simple JSON-based configuration for AnythingButFish.
- * Config file: .minecraft/config/anythingbutfish.json
+ * Config file: .minecraft/config/anythingbutfish.json5
+ *
+ * Pool modes:
+ *   itemPoolIsWhitelist / entityPoolIsWhitelist
+ *     true  (WHITELIST) – only items/entities in the list can appear.
+ *                         Empty list = skip this loot type entirely.
+ *     false (BLACKLIST) – full registry minus items/entities in the list.
+ *                         allowModded/allowAdmin/allowDangerous filters apply.
  */
 public class AbfConfig {
-    // -----------------------------------------------------------------------
-    // Weighted entry types
-    // -----------------------------------------------------------------------
 
+    // -----------------------------------------------------------------------
+    // Entry types (no weight – pool mode determines selection)
+    // -----------------------------------------------------------------------
     public static class ItemEntry {
         public String id = "minecraft:cod";
-        public int weight = 10;
         public int minCount = -1;
         public int maxCount = -1;
 
         public ItemEntry() {}
-        public ItemEntry(String id, int weight) { this.id = id; this.weight = weight; }
-        public ItemEntry(String id, int weight, int minCount, int maxCount) {
-            this.id = id; this.weight = weight;
-            this.minCount = minCount; this.maxCount = maxCount;
+        public ItemEntry(String id) { this.id = id; }
+        public ItemEntry(String id, int minCount, int maxCount) {
+            this.id = id;
+            this.minCount = minCount;
+            this.maxCount = maxCount;
         }
-
-        /** Returns true if this entry is disabled (weight = -1) */
-        public boolean isDisabled() { return weight == -1; }
     }
 
     public static class EntityEntry {
-        public String id = "minecraft:cod";
-        public int weight = 10;
+        public String id = "minecraft:pig";
 
         public EntityEntry() {}
-        public EntityEntry(String id, int weight) { this.id = id; this.weight = weight; }
-
-        /** Returns true if this entry is disabled (weight = -1) */
-        public boolean isDisabled() { return weight == -1; }
+        public EntityEntry(String id) { this.id = id; }
     }
+
+    // -----------------------------------------------------------------------
+    // Pool mode switches
+    // -----------------------------------------------------------------------
+    /** true = whitelist (only listed items), false = blacklist (all except listed) */
+    public boolean itemPoolIsWhitelist = false;
+    /** true = whitelist (only listed entities), false = blacklist (all except listed) */
+    public boolean entityPoolIsWhitelist = false;
 
     // -----------------------------------------------------------------------
     // Misc toggles
     // -----------------------------------------------------------------------
-
     /** Master switch. If false, vanilla fishing behavior is restored. */
     public boolean enabled = true;
-
     /** Debug mode: print caught loot to chat and log. */
     public boolean debugMode = false;
-
     /** Make all fishing rods have infinite durability (no damage on use). */
     public boolean infiniteDurability = false;
-
-    /**
-     * Add a fresh fishing rod to the world spawn bonus chest loot table
-     * (minecraft:chests/spawn_bonus_chest).
-     * The bonus chest is the optional starter chest generated at world spawn
-     * when the player enables "Bonus Chest" during world creation.
-     * When true, a fresh (undamaged, unenchanted) fishing rod is added alongside
-     * the existing bonus chest loot.
-     */
-    public boolean replaceLootChestRods = false;
-
     /**
      * Compatibility mode for modded fishing rods.
-     * When true, the mod hooks into ANY FishingHook entity (including those
-     * spawned by modded rods that extend or use vanilla FishingHook).
-     * This is already the default behavior since we mixin FishingHook directly.
-     * This flag is informational / for future per-mod exclusions.
+     * Informational – the mod already hooks into all FishingHook entities.
      */
     public boolean moddedRodCompat = true;
-
-    /**
-     * Allow modded items in the random item pool.
-     * Only applies when itemPool is empty (full-registry random mode).
-     * When false, only items from the "minecraft" namespace are eligible.
-     * When true, items from all namespaces (including mods) are eligible.
-     */
-    public boolean allowModdedItems = true;
-
-    /**
-     * Allow modded entities in the random entity pool.
-     * Only applies when entityPool is empty (full-registry random mode).
-     * When false, only entities from the "minecraft" namespace are eligible.
-     * When true, entities from all namespaces (including mods) are eligible.
-     */
-    public boolean allowModdedEntities = true;
-
-    /**
-     * Allow admin/gamemode items in the random item pool.
-     * Only applies when itemPool is empty (full-registry random mode).
-     * Includes: command blocks, structure blocks, jigsaw blocks, barrier, written books, debug sticks, etc.
-     * When false, admin items are excluded from the random pool.
-     * When true, admin items may appear as loot.
-     */
-    public boolean allowAdminItems = false;
-
-    /**
-     * Allow dangerous mobs in the random entity pool.
-     * Only applies when entityPool is empty (full-registry random mode).
-     * Includes: Ender Dragon, Wither, etc.
-     * When false, dangerous mobs are excluded from the random pool.
-     * When true, dangerous mobs may appear as loot.
-     */
-    public boolean allowDangerousMobs = false;
-
     /**
      * Wait for a fish to bite before giving random loot.
-     * When false (default): random loot is given every time the player reels in,
-     * regardless of whether anything was caught.
-     * When true: random loot is only given when the fishing hook actually catches
-     * something (like vanilla fishing - you need to wait for a bite).
+     * false = loot every reel-in; true = loot only on actual bite.
      */
     public boolean waitForBite = false;
 
     // -----------------------------------------------------------------------
+    // Registry filters (apply in BLACKLIST mode only)
+    // -----------------------------------------------------------------------
+    /** Allow modded (non-minecraft namespace) items in blacklist mode. */
+    public boolean allowModdedItems = true;
+    /** Allow modded (non-minecraft namespace) entities in blacklist mode. */
+    public boolean allowModdedEntities = true;
+    /** Allow admin items (command blocks, barriers, etc.) in blacklist mode. */
+    public boolean allowAdminItems = false;
+    /** Allow dangerous mobs (ender dragon, wither) in blacklist mode. */
+    public boolean allowDangerousMobs = false;
+
+    // -----------------------------------------------------------------------
     // Chance settings
     // -----------------------------------------------------------------------
-
     public int chanceItem = 60;
     public int chanceEntity = 25;
     public int chanceXp = 10;
@@ -133,45 +97,41 @@ public class AbfConfig {
     // -----------------------------------------------------------------------
     // Item settings
     // -----------------------------------------------------------------------
-
     public int itemCountMin = 1;
     public int itemCountMax = 1;
 
     /**
-     * Weighted item pool. Empty = use full registry.
-     * Format: {"id": "minecraft:diamond", "weight": 5}
-     * Optional: "minCount", "maxCount" per entry.
+     * Item pool. Behaviour depends on itemPoolIsWhitelist:
+     *   WHITELIST – only these items can appear (empty = skip item drops).
+     *   BLACKLIST – these items are excluded from the full registry.
      */
     public List<ItemEntry> itemPool = new ArrayList<>();
 
     // -----------------------------------------------------------------------
     // Entity settings
     // -----------------------------------------------------------------------
-
     /**
-     * Weighted entity pool. Empty = use full registry.
-     * Format: {"id": "minecraft:creeper", "weight": 3}
+     * Entity pool. Behaviour depends on entityPoolIsWhitelist:
+     *   WHITELIST – only these entities can appear (empty = skip entity spawns).
+     *   BLACKLIST – these entities are excluded from the full registry.
      */
     public List<EntityEntry> entityPool = new ArrayList<>();
 
     // -----------------------------------------------------------------------
     // XP settings
     // -----------------------------------------------------------------------
-
     public int xpMin = 1;
     public int xpMax = 50;
 
     // -----------------------------------------------------------------------
     // Physics settings
     // -----------------------------------------------------------------------
-
     public double flingSpeed = 0.1;
     public double flingArc = 0.08;
 
     // -----------------------------------------------------------------------
     // Singleton
     // -----------------------------------------------------------------------
-
     private static AbfConfig INSTANCE = null;
 
     public static AbfConfig get() {
@@ -186,7 +146,6 @@ public class AbfConfig {
     // -----------------------------------------------------------------------
     // Load / Save
     // -----------------------------------------------------------------------
-
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private static Path configPath() {
@@ -209,30 +168,23 @@ public class AbfConfig {
     }
 
     public void save() {
-        // Always clamp before saving so the file is always in a valid state,
-        // and so the in-memory values are correct for the current session.
         clamp();
         Path path = configPath();
         try {
             path.getParent().toFile().mkdirs();
             try (Writer w = new OutputStreamWriter(new FileOutputStream(path.toFile()), StandardCharsets.UTF_8)) {
-                // JSON5 supports // and /* */ comments
                 w.write("/*\n");
                 w.write(" * AnythingButFish Configuration File\n");
-                w.write(" * \n");
-                w.write(" * How loot probabilities work:\n");
-                w.write(" * - chanceItem + chanceEntity + chanceXp should be <= 100\n");
-                w.write(" * - Any remainder (100 - total) is the chance of catching nothing\n");
-                w.write(" * \n");
-                w.write(" * Custom item/entity pools:\n");
-                w.write(" * - Leave itemPool/entityPool empty to use full registry (random from all items/entities)\n");
-                w.write(" * - Format: {\"id\": \"namespace:item_name\", \"weight\": N}\n");
-                w.write(" * - For items: also supports \"minCount\": N and \"maxCount\": N (-1 = use global settings)\n");
-                w.write(" * - Set weight to -1 to disable a specific item/entity entry\n");
-                w.write(" * \n");
-                w.write(" * Examples:\n");
-                w.write(" *   {\"id\": \"minecraft:diamond\", \"weight\": 5}\n");
-                w.write(" *   {\"id\": \"minecraft:creeper\", \"weight\": 3, \"minCount\": 1, \"maxCount\": 3}\n");
+                w.write(" *\n");
+                w.write(" * Pool modes:\n");
+                w.write(" *   itemPoolIsWhitelist / entityPoolIsWhitelist\n");
+                w.write(" *     true  (WHITELIST) - only items/entities in the list can appear.\n");
+                w.write(" *                         Empty list = skip this loot type entirely.\n");
+                w.write(" *     false (BLACKLIST) - full registry minus items/entities in the list.\n");
+                w.write(" *                         allowModded/allowAdmin/allowDangerous filters apply.\n");
+                w.write(" *\n");
+                w.write(" * Probability: chanceItem + chanceEntity + chanceXp <= 100.\n");
+                w.write(" *   Remainder is the chance of nothing (the one that got away).\n");
                 w.write(" */\n");
                 w.write("\n");
                 GSON.toJson(this, w);
@@ -246,13 +198,15 @@ public class AbfConfig {
         chanceItem   = Math.max(0, Math.min(100, chanceItem));
         chanceEntity = Math.max(0, Math.min(100, chanceEntity));
         chanceXp     = Math.max(0, Math.min(100, chanceXp));
+
         int total = chanceItem + chanceEntity + chanceXp;
         if (total > 100) {
             double scale = 100.0 / total;
-            chanceItem   = (int)(chanceItem  * scale);
+            chanceItem   = (int)(chanceItem   * scale);
             chanceEntity = (int)(chanceEntity * scale);
-            chanceXp     = (int)(chanceXp    * scale);
+            chanceXp     = (int)(chanceXp     * scale);
         }
+
         itemCountMin = Math.max(1, itemCountMin);
         itemCountMax = Math.max(itemCountMin, itemCountMax);
         xpMin = Math.max(1, xpMin);
@@ -262,59 +216,14 @@ public class AbfConfig {
 
         if (itemPool == null) itemPool = new ArrayList<>();
         itemPool.removeIf(e -> e == null || e.id == null || e.id.isBlank());
-        // Don't auto-clamp weight to 1 - allow -1 for disabled entries
-        itemPool.forEach(e -> { if (e.weight != -1) e.weight = Math.max(1, e.weight); });
 
         if (entityPool == null) entityPool = new ArrayList<>();
         entityPool.removeIf(e -> e == null || e.id == null || e.id.isBlank());
-        entityPool.forEach(e -> { if (e.weight != -1) e.weight = Math.max(1, e.weight); });
-    }
-
-    // -----------------------------------------------------------------------
-    // Weighted random helpers
-    // -----------------------------------------------------------------------
-
-    public ItemEntry pickRandomItem(java.util.Random rng) {
-        return pickWeighted(itemPool, rng);
-    }
-
-    public EntityEntry pickRandomEntity(java.util.Random rng) {
-        return pickWeighted(entityPool, rng);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> T pickWeighted(List<?> pool, java.util.Random rng) {
-        if (pool == null || pool.isEmpty()) return null;
-        
-        // Filter out disabled entries (weight = -1) and calculate total weight
-        List<Object> activePool = new java.util.ArrayList<>();
-        int totalWeight = 0;
-        for (Object e : pool) {
-            if (e instanceof ItemEntry ie && !ie.isDisabled()) {
-                activePool.add(e);
-                totalWeight += ie.weight;
-            } else if (e instanceof EntityEntry ee && !ee.isDisabled()) {
-                activePool.add(e);
-                totalWeight += ee.weight;
-            }
-        }
-        
-        if (activePool.isEmpty() || totalWeight <= 0) return null;
-        
-        int roll = rng.nextInt(totalWeight);
-        int cumulative = 0;
-        for (Object e : activePool) {
-            int w = (e instanceof ItemEntry ie) ? ie.weight : ((EntityEntry) e).weight;
-            cumulative += w;
-            if (roll < cumulative) return (T) e;
-        }
-        return (T) activePool.get(activePool.size() - 1);
     }
 
     // -----------------------------------------------------------------------
     // Threshold helpers
     // -----------------------------------------------------------------------
-
     public int thresholdItem()   { return chanceItem; }
     public int thresholdEntity() { return chanceItem + chanceEntity; }
     public int thresholdXp()     { return chanceItem + chanceEntity + chanceXp; }

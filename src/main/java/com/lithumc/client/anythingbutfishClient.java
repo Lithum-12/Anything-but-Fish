@@ -7,16 +7,17 @@ import net.fabricmc.loader.api.FabricLoader;
 
 /**
  * Client-side initializer for AnythingButFish.
- * 
- * Configuration is handled via Cloth Config API which is bundled with the mod.
- * No ModMenu dependency required - works standalone.
+ *
+ * ModMenu integration is handled via a separate entrypoint class (AbfModMenuIntegration)
+ * registered in fabric.mod.json only when ModMenu is present. This avoids a
+ * NoClassDefFoundError crash when ModMenu is not installed.
  */
 public class anythingbutfishClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
         AnythingButFish.LOGGER.info("[AnythingButFish] Client initialized.");
-        // Log Cloth Config status on client startup
+        // Log YACL status on client startup
         AbfYaclBridge.isYaclPresent();
 
         if (FabricLoader.getInstance().isModLoaded("modmenu")) {
