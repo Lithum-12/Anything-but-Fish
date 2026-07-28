@@ -14,20 +14,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Prevents fishing rod durability damage when infiniteDurability is enabled.
- *
- * In MC 1.21.1, FishingRodItem.use() returns InteractionResultHolder<ItemStack>.
- * We inject at RETURN and reset the rod's damage value to 0 if it was damaged.
- *
- * Modded rod compatibility: covers rods that extend FishingRodItem.
+ * MC 1.18.2: FishingRodItem.use() returns InteractionResultHolder<ItemStack>.
+ * MC 1.18.2: level.isClientSide is a field, not a method.
  */
 @Mixin(FishingRodItem.class)
 public class FishingRodDurabilityMixin {
 
     @Inject(method = "use", at = @At("RETURN"))
     private void abf$preventDurabilityLoss(Level level, Player player, InteractionHand hand,
-                                            CallbackInfoReturnable<InteractionResultHolder<ItemStack>> cir) {
+                                           CallbackInfoReturnable<InteractionResultHolder<ItemStack>> cir) {
         if (!AbfConfig.get().infiniteDurability) return;
-        if (level.isClientSide()) return;
+        if (level.isClientSide) return;                                 // field access
 
         ItemStack stack = player.getItemInHand(hand);
         if (stack.isDamageableItem() && stack.getDamageValue() > 0) {

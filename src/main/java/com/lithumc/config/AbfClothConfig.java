@@ -7,166 +7,234 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.chat.TextComponent;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Cloth Config GUI for AnythingButFish.
  * Replaces YACL for MC 1.18.x.
- * 
- * MC 1.18.2 port: uses TranslatableComponent/TextComponent instead of Component.translatable/literal.
+ *
+ * MC 1.18.2 port: uses TranslatableComponent/TextComponent
+ *                  instead of Component.translatable/literal.
+ *
+ * Category layout:
+ *   General     – Chances | Item Counts | XP | Physics
+ *   Misc        – Feature Switches | Fishing Behavior
+ *   Item Pool   – Pool Mode | Registry Filters | Item List
+ *   Entity Pool – Pool Mode | Registry Filters | Entity List
  */
 public class AbfClothConfig {
 
+    // -----------------------------------------------------------------------
+    // Serialization helpers
+    // -----------------------------------------------------------------------
+    private static String serializeItem(AbfConfig.ItemEntry e) {
+        if (e.minCount > 0 && e.maxCount > 0)
+            return e.id + ":" + e.minCount + ":" + e.maxCount;
+        return e.id;
+    }
+
+    private static AbfConfig.ItemEntry parseItem(String s) {
+        if (s == null || s.isBlank()) return null;
+        String[] parts = s.trim().split(":");
+        if (parts.length < 2) return null;
+        String id = parts[0] + ":" + parts[1];
+        AbfConfig.ItemEntry entry = new AbfConfig.ItemEntry(id);
+        if (parts.length >= 4) {
+            try {
+                entry.minCount = Integer.parseInt(parts[2]);
+                entry.maxCount = Integer.parseInt(parts[3]);
+            } catch (NumberFormatException ignored) {}
+        }
+        return entry;
+    }
+
+    private static String serializeEntity(AbfConfig.EntityEntry e) {
+        return e.id;
+    }
+
+    private static AbfConfig.EntityEntry parseEntity(String s) {
+        if (s == null || s.isBlank()) return null;
+        String[] parts = s.trim().split(":");
+        if (parts.length < 2) return null;
+        return new AbfConfig.EntityEntry(parts[0] + ":" + parts[1]);
+    }
+
+    // -----------------------------------------------------------------------
+    // Screen builder
+    // -----------------------------------------------------------------------
     public static Screen createScreen(Screen parent) {
+        AbfConfig cfg = AbfConfig.get();
+
         ConfigBuilder builder = ConfigBuilder.create()
                 .setParentScreen(parent)
                 .setTitle(new TranslatableComponent("config.anythingbutfish.title"))
                 .setSavingRunnable(() -> {
-                    AbfConfig.get().save();
+                    cfg.save();
                     AbfConfig.reload();
                 });
 
-        ConfigEntryBuilder entryBuilder = builder.entryBuilder();
-        AbfConfig config = AbfConfig.get();
+        ConfigEntryBuilder eb = builder.entryBuilder();
 
-        // General category
-        ConfigCategory general = builder.getOrCreateCategory(new TranslatableComponent("config.anythingbutfish.category.general"));
-        
-        general.addEntry(entryBuilder.startBooleanToggle(new TranslatableComponent("config.anythingbutfish.enabled"), config.enabled)
+        List<String> itemPoolStrings   = new ArrayList<>();
+        List<String> entityPoolStrings = new ArrayList<>();
+        for (AbfConfig.ItemEntry   e : cfg.itemPool)   itemPoolStrings.add(serializeItem(e));
+        for (AbfConfig.EntityEntry e : cfg.entityPool) entityPoolStrings.add(serializeEntity(e));
+
+        // ════════════════════════════════════════════════════════════
+        // Category 1: General
+        // ════════════════════════════════════════════════════════════
+        ConfigCategory general = builder.getOrCreateCategory(
+                new TranslatableComponent("config.anythingbutfish.cat.general"));
+
+        general.addEntry(eb.startIntSlider(
+                        new TranslatableComponent("config.anythingbutfish.chanceItem"), cfg.chanceItem, 0, 100)
+                .setDefaultValue(60).setTextGetter(v -> new TextComponent(v + "%"))
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.chanceItem.tooltip"))
+                .setSaveConsumer(v -> cfg.chanceItem = v).build());
+        general.addEntry(eb.startIntSlider(
+                        new TranslatableComponent("config.anythingbutfish.chanceEntity"), cfg.chanceEntity, 0, 100)
+                .setDefaultValue(25).setTextGetter(v -> new TextComponent(v + "%"))
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.chanceEntity.tooltip"))
+                .setSaveConsumer(v -> cfg.chanceEntity = v).build());
+        general.addEntry(eb.startIntSlider(
+                        new TranslatableComponent("config.anythingbutfish.chanceXp"), cfg.chanceXp, 0, 100)
+                .setDefaultValue(10).setTextGetter(v -> new TextComponent(v + "%"))
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.chanceXp.tooltip"))
+                .setSaveConsumer(v -> cfg.chanceXp = v).build());
+
+        general.addEntry(eb.startIntField(
+                        new TranslatableComponent("config.anythingbutfish.itemCountMin"), cfg.itemCountMin)
+                .setDefaultValue(1).setMin(1)
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.itemCountMin.tooltip"))
+                .setSaveConsumer(v -> cfg.itemCountMin = v).build());
+        general.addEntry(eb.startIntField(
+                        new TranslatableComponent("config.anythingbutfish.itemCountMax"), cfg.itemCountMax)
+                .setDefaultValue(1).setMin(1)
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.itemCountMax.tooltip"))
+                .setSaveConsumer(v -> cfg.itemCountMax = v).build());
+
+        general.addEntry(eb.startIntField(
+                        new TranslatableComponent("config.anythingbutfish.xpMin"), cfg.xpMin)
+                .setDefaultValue(1).setMin(1)
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.xpMin.tooltip"))
+                .setSaveConsumer(v -> cfg.xpMin = v).build());
+        general.addEntry(eb.startIntField(
+                        new TranslatableComponent("config.anythingbutfish.xpMax"), cfg.xpMax)
+                .setDefaultValue(50).setMin(1)
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.xpMax.tooltip"))
+                .setSaveConsumer(v -> cfg.xpMax = v).build());
+
+        general.addEntry(eb.startDoubleField(
+                        new TranslatableComponent("config.anythingbutfish.flingSpeed"), cfg.flingSpeed)
+                .setDefaultValue(0.1).setMin(0.01)
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.flingSpeed.tooltip"))
+                .setSaveConsumer(v -> cfg.flingSpeed = v).build());
+        general.addEntry(eb.startDoubleField(
+                        new TranslatableComponent("config.anythingbutfish.flingArc"), cfg.flingArc)
+                .setDefaultValue(0.08).setMin(0.0)
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.flingArc.tooltip"))
+                .setSaveConsumer(v -> cfg.flingArc = v).build());
+
+        // ════════════════════════════════════════════════════════════
+        // Category 2: Misc
+        // ════════════════════════════════════════════════════════════
+        ConfigCategory misc = builder.getOrCreateCategory(
+                new TranslatableComponent("config.anythingbutfish.cat.misc"));
+
+        misc.addEntry(eb.startBooleanToggle(
+                        new TranslatableComponent("config.anythingbutfish.enabled"), cfg.enabled)
                 .setDefaultValue(true)
                 .setTooltip(new TranslatableComponent("config.anythingbutfish.enabled.tooltip"))
-                .setSaveConsumer(val -> config.enabled = val)
-                .build());
-        
-        general.addEntry(entryBuilder.startBooleanToggle(new TranslatableComponent("config.anythingbutfish.debugMode"), config.debugMode)
+                .setSaveConsumer(v -> cfg.enabled = v).build());
+        misc.addEntry(eb.startBooleanToggle(
+                        new TranslatableComponent("config.anythingbutfish.debugMode"), cfg.debugMode)
                 .setDefaultValue(false)
                 .setTooltip(new TranslatableComponent("config.anythingbutfish.debugMode.tooltip"))
-                .setSaveConsumer(val -> config.debugMode = val)
-                .build());
-        
-        general.addEntry(entryBuilder.startBooleanToggle(new TranslatableComponent("config.anythingbutfish.infiniteDurability"), config.infiniteDurability)
+                .setSaveConsumer(v -> cfg.debugMode = v).build());
+        misc.addEntry(eb.startBooleanToggle(
+                        new TranslatableComponent("config.anythingbutfish.infiniteDurability"), cfg.infiniteDurability)
                 .setDefaultValue(false)
                 .setTooltip(new TranslatableComponent("config.anythingbutfish.infiniteDurability.tooltip"))
-                .setSaveConsumer(val -> config.infiniteDurability = val)
-                .build());
-        
-        general.addEntry(entryBuilder.startBooleanToggle(new TranslatableComponent("config.anythingbutfish.replaceLootChestRods"), config.replaceLootChestRods)
-                .setDefaultValue(false)
-                .setTooltip(new TranslatableComponent("config.anythingbutfish.replaceLootChestRods.tooltip"))
-                .setSaveConsumer(val -> config.replaceLootChestRods = val)
-                .build());
-        
-        general.addEntry(entryBuilder.startBooleanToggle(new TranslatableComponent("config.anythingbutfish.allowModdedItems"), config.allowModdedItems)
-                .setDefaultValue(true)
-                .setTooltip(new TranslatableComponent("config.anythingbutfish.allowModdedItems.tooltip"))
-                .setSaveConsumer(val -> config.allowModdedItems = val)
-                .build());
-        
-        general.addEntry(entryBuilder.startBooleanToggle(new TranslatableComponent("config.anythingbutfish.allowModdedEntities"), config.allowModdedEntities)
-                .setDefaultValue(true)
-                .setTooltip(new TranslatableComponent("config.anythingbutfish.allowModdedEntities.tooltip"))
-                .setSaveConsumer(val -> config.allowModdedEntities = val)
-                .build());
-        
-        general.addEntry(entryBuilder.startBooleanToggle(new TranslatableComponent("config.anythingbutfish.allowAdminItems"), config.allowAdminItems)
-                .setDefaultValue(false)
-                .setTooltip(new TranslatableComponent("config.anythingbutfish.allowAdminItems.tooltip"))
-                .setSaveConsumer(val -> config.allowAdminItems = val)
-                .build());
-        
-        general.addEntry(entryBuilder.startBooleanToggle(new TranslatableComponent("config.anythingbutfish.allowDangerousMobs"), config.allowDangerousMobs)
-                .setDefaultValue(false)
-                .setTooltip(new TranslatableComponent("config.anythingbutfish.allowDangerousMobs.tooltip"))
-                .setSaveConsumer(val -> config.allowDangerousMobs = val)
-                .build());
-        
-        general.addEntry(entryBuilder.startBooleanToggle(new TranslatableComponent("config.anythingbutfish.waitForBite"), config.waitForBite)
+                .setSaveConsumer(v -> cfg.infiniteDurability = v).build());
+        misc.addEntry(eb.startBooleanToggle(
+                        new TranslatableComponent("config.anythingbutfish.waitForBite"), cfg.waitForBite)
                 .setDefaultValue(false)
                 .setTooltip(new TranslatableComponent("config.anythingbutfish.waitForBite.tooltip"))
-                .setSaveConsumer(val -> config.waitForBite = val)
-                .build());
+                .setSaveConsumer(v -> cfg.waitForBite = v).build());
+        misc.addEntry(eb.startBooleanToggle(
+                        new TranslatableComponent("config.anythingbutfish.moddedRodCompat"), cfg.moddedRodCompat)
+                .setDefaultValue(true)
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.moddedRodCompat.tooltip"))
+                .setSaveConsumer(v -> cfg.moddedRodCompat = v).build());
 
-        // Chances category
-        ConfigCategory chances = builder.getOrCreateCategory(new TranslatableComponent("config.anythingbutfish.category.chances"));
-        
-        chances.addEntry(entryBuilder.startIntSlider(new TranslatableComponent("config.anythingbutfish.chanceItem"), config.chanceItem, 0, 100)
-                .setDefaultValue(60)
-                .setTextGetter(val -> new TextComponent(val + "%"))
-                .setTooltip(new TranslatableComponent("config.anythingbutfish.chanceItem.tooltip"))
-                .setSaveConsumer(val -> config.chanceItem = val)
-                .build());
-        
-        chances.addEntry(entryBuilder.startIntSlider(new TranslatableComponent("config.anythingbutfish.chanceEntity"), config.chanceEntity, 0, 100)
-                .setDefaultValue(25)
-                .setTextGetter(val -> new TextComponent(val + "%"))
-                .setTooltip(new TranslatableComponent("config.anythingbutfish.chanceEntity.tooltip"))
-                .setSaveConsumer(val -> config.chanceEntity = val)
-                .build());
-        
-        chances.addEntry(entryBuilder.startIntSlider(new TranslatableComponent("config.anythingbutfish.chanceXp"), config.chanceXp, 0, 100)
-                .setDefaultValue(10)
-                .setTextGetter(val -> new TextComponent(val + "%"))
-                .setTooltip(new TranslatableComponent("config.anythingbutfish.chanceXp.tooltip"))
-                .setSaveConsumer(val -> config.chanceXp = val)
-                .build());
+        // ════════════════════════════════════════════════════════════
+        // Category 3: Item Pool
+        // ════════════════════════════════════════════════════════════
+        ConfigCategory itemPool = builder.getOrCreateCategory(
+                new TranslatableComponent("config.anythingbutfish.cat.itemPool"));
 
-        // Item settings category
-        ConfigCategory items = builder.getOrCreateCategory(new TranslatableComponent("config.anythingbutfish.category.items"));
-        
-        items.addEntry(entryBuilder.startIntField(new TranslatableComponent("config.anythingbutfish.itemCountMin"), config.itemCountMin)
-                .setDefaultValue(1)
-                .setMin(1)
-                .setTooltip(new TranslatableComponent("config.anythingbutfish.itemCountMin.tooltip"))
-                .setSaveConsumer(val -> config.itemCountMin = val)
-                .build());
-        
-        items.addEntry(entryBuilder.startIntField(new TranslatableComponent("config.anythingbutfish.itemCountMax"), config.itemCountMax)
-                .setDefaultValue(1)
-                .setMin(1)
-                .setTooltip(new TranslatableComponent("config.anythingbutfish.itemCountMax.tooltip"))
-                .setSaveConsumer(val -> config.itemCountMax = val)
-                .build());
+        itemPool.addEntry(eb.startBooleanToggle(
+                        new TranslatableComponent("config.anythingbutfish.itemPoolIsWhitelist"), cfg.itemPoolIsWhitelist)
+                .setDefaultValue(false)
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.itemPoolIsWhitelist.tooltip"))
+                .setSaveConsumer(v -> cfg.itemPoolIsWhitelist = v).build());
+        itemPool.addEntry(eb.startBooleanToggle(
+                        new TranslatableComponent("config.anythingbutfish.allowModdedItems"), cfg.allowModdedItems)
+                .setDefaultValue(true)
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.allowModdedItems.tooltip"))
+                .setSaveConsumer(v -> cfg.allowModdedItems = v).build());
+        itemPool.addEntry(eb.startBooleanToggle(
+                        new TranslatableComponent("config.anythingbutfish.allowAdminItems"), cfg.allowAdminItems)
+                .setDefaultValue(false)
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.allowAdminItems.tooltip"))
+                .setSaveConsumer(v -> cfg.allowAdminItems = v).build());
 
-        // XP settings category
-        ConfigCategory xp = builder.getOrCreateCategory(new TranslatableComponent("config.anythingbutfish.category.xp"));
-        
-        xp.addEntry(entryBuilder.startIntField(new TranslatableComponent("config.anythingbutfish.xpMin"), config.xpMin)
-                .setDefaultValue(1)
-                .setMin(1)
-                .setTooltip(new TranslatableComponent("config.anythingbutfish.xpMin.tooltip"))
-                .setSaveConsumer(val -> config.xpMin = val)
-                .build());
-        
-        xp.addEntry(entryBuilder.startIntField(new TranslatableComponent("config.anythingbutfish.xpMax"), config.xpMax)
-                .setDefaultValue(50)
-                .setMin(1)
-                .setTooltip(new TranslatableComponent("config.anythingbutfish.xpMax.tooltip"))
-                .setSaveConsumer(val -> config.xpMax = val)
-                .build());
+        itemPool.addEntry(eb.startStrList(
+                        new TranslatableComponent("config.anythingbutfish.itemPool"), itemPoolStrings)
+                .setDefaultValue(List.of())
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.itemPool.tooltip"))
+                .setSaveConsumer(v -> {
+                    cfg.itemPool.clear();
+                    for (String s : v) {
+                        AbfConfig.ItemEntry e = parseItem(s);
+                        if (e != null) cfg.itemPool.add(e);
+                    }
+                }).build());
 
-        // Physics settings category
-        ConfigCategory physics = builder.getOrCreateCategory(new TranslatableComponent("config.anythingbutfish.category.physics"));
-        
-        physics.addEntry(entryBuilder.startDoubleField(new TranslatableComponent("config.anythingbutfish.flingSpeed"), config.flingSpeed)
-                .setDefaultValue(0.1)
-                .setMin(0.01)
-                .setTooltip(new TranslatableComponent("config.anythingbutfish.flingSpeed.tooltip"))
-                .setSaveConsumer(val -> config.flingSpeed = val)
-                .build());
-        
-        physics.addEntry(entryBuilder.startDoubleField(new TranslatableComponent("config.anythingbutfish.flingArc"), config.flingArc)
-                .setDefaultValue(0.08)
-                .setMin(0.0)
-                .setTooltip(new TranslatableComponent("config.anythingbutfish.flingArc.tooltip"))
-                .setSaveConsumer(val -> config.flingArc = val)
-                .build());
+        // ════════════════════════════════════════════════════════════
+        // Category 4: Entity Pool
+        // ════════════════════════════════════════════════════════════
+        ConfigCategory entityPool = builder.getOrCreateCategory(
+                new TranslatableComponent("config.anythingbutfish.cat.entityPool"));
 
-        // Info category - explains item/entity pools
-        ConfigCategory info = builder.getOrCreateCategory(new TranslatableComponent("config.anythingbutfish.category.info"));
-        
-        info.addEntry(entryBuilder.startTextDescription(new TranslatableComponent("config.anythingbutfish.info.pools"))
-                .build());
-        
-        info.addEntry(entryBuilder.startTextDescription(new TranslatableComponent("config.anythingbutfish.info.pools.format"))
-                .build());
+        entityPool.addEntry(eb.startBooleanToggle(
+                        new TranslatableComponent("config.anythingbutfish.entityPoolIsWhitelist"), cfg.entityPoolIsWhitelist)
+                .setDefaultValue(false)
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.entityPoolIsWhitelist.tooltip"))
+                .setSaveConsumer(v -> cfg.entityPoolIsWhitelist = v).build());
+        entityPool.addEntry(eb.startBooleanToggle(
+                        new TranslatableComponent("config.anythingbutfish.allowModdedEntities"), cfg.allowModdedEntities)
+                .setDefaultValue(true)
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.allowModdedEntities.tooltip"))
+                .setSaveConsumer(v -> cfg.allowModdedEntities = v).build());
+        entityPool.addEntry(eb.startBooleanToggle(
+                        new TranslatableComponent("config.anythingbutfish.allowDangerousMobs"), cfg.allowDangerousMobs)
+                .setDefaultValue(false)
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.allowDangerousMobs.tooltip"))
+                .setSaveConsumer(v -> cfg.allowDangerousMobs = v).build());
+
+        entityPool.addEntry(eb.startStrList(
+                        new TranslatableComponent("config.anythingbutfish.entityPool"), entityPoolStrings)
+                .setDefaultValue(List.of())
+                .setTooltip(new TranslatableComponent("config.anythingbutfish.entityPool.tooltip"))
+                .setSaveConsumer(v -> {
+                    cfg.entityPool.clear();
+                    for (String s : v) {
+                        AbfConfig.EntityEntry e = parseEntity(s);
+                        if (e != null) cfg.entityPool.add(e);
+                    }
+                }).build());
 
         return builder.build();
     }
