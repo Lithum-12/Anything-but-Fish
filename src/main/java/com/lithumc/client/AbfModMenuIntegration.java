@@ -18,10 +18,10 @@ public class AbfModMenuIntegration implements ModMenuApi {
 
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        if (AbfYaclBridge.isYaclPresent()) {
-            return parent -> AbfYaclBridge.createConfigScreen(parent);
-        }
-        // No YACL – return null so ModMenu shows no config button
-        return null;
+        // ModMenu 2.x requires a non-null factory (ImmutableMap rejects null values)
+        // The factory itself returns null when Cloth Config is absent → hides config button
+        return parent -> AbfYaclBridge.isYaclPresent()
+                ? AbfYaclBridge.createConfigScreen(parent)
+                : null;
     }
 }
