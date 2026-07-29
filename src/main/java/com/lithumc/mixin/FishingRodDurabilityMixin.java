@@ -1,4 +1,4 @@
- package com.lithumc.mixin;
+package com.lithumc.mixin;
 
 import com.lithumc.config.AbfConfig;
 import net.minecraft.entity.player.PlayerEntity;
@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Item.class)
 public class FishingRodDurabilityMixin {
 
-    @Inject(method = "use", at = @At("RETURN"))
+    @Inject(method = "use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;", at = @At("RETURN"))
     private void abf$preventDurabilityLoss(World world, PlayerEntity player, Hand hand,
                                            CallbackInfoReturnable<TypedActionResult<ItemStack>> cir) {
         // Only apply to fishing rods
