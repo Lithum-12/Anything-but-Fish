@@ -28,7 +28,8 @@ dependencies {
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     // YetAnotherConfigLib – optional at runtime, required at compile time for the GUI code
     // Players who don't have YACL installed will still work fine (JSON config only)

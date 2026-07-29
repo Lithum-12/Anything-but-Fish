@@ -35,10 +35,10 @@
 
   "depends": {
     "fabricloader": ">=0.15.0",
-    "fabric-api": "*",
     "minecraft": ">=1.21.5 <=1.21.11"
   },
   "suggests": {
+    "fabric-api": "*",
     "yet_another_config_lib_v3": ">=3.0.0",
     "modmenu": ">=14.0.0"
   }
