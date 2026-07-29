@@ -24,10 +24,11 @@ repositories {
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    // 使用Mojang mappings替代Yarn（Yarn 1.21.x不可用）
+    // Use Mojang mappings
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    // Fabric API - optional at runtime, required at compile time for the API code
+    compileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    localRuntime "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     // YetAnotherConfigLib – optional at runtime, required at compile time for the GUI code
     // Players who don't have YACL installed will still work fine (JSON config only)
