@@ -1,34 +1,32 @@
 package com.lithumc.mixin;
 
 import com.lithumc.config.AbfConfig;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.FishingRodItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.FishingRodItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Prevents fishing rod durability damage when infiniteDurability is enabled.
- * MC 1.18.2: FishingRodItem.use() returns InteractionResultHolder<ItemStack>.
- * MC 1.18.2: level.isClientSide is a field, not a method.
+ * MC 1.16.5 Yarn: FishingRodItem.use() returns TypedActionResult<ItemStack>.
+ * MC 1.16.5 Yarn: world.isClient is a field.
  */
 @Mixin(FishingRodItem.class)
 public class FishingRodDurabilityMixin {
-
-    @Inject(method = "use", at = @At("RETURN"))
-    private void abf$preventDurabilityLoss(Level level, Player player, InteractionHand hand,
-                                           CallbackInfoReturnable<InteractionResultHolder<ItemStack>> cir) {
+    @Inject(method = "use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;", at = @At("RETURN"))
+    private void abf$preventDurabilityLoss(World world, PlayerEntity player, Hand hand,
+                                           CallbackInfoReturnable<TypedActionResult<ItemStack>> cir) {
         if (!AbfConfig.get().infiniteDurability) return;
-        if (level.isClientSide) return;                                 // field access
+        if (world.isClient) return;
 
-        ItemStack stack = player.getItemInHand(hand);
-        if (stack.isDamageableItem() && stack.getDamageValue() > 0) {
-            stack.setDamageValue(0);
+        ItemStack stack = player.getStackInHand(hand);
+        if (stack.isDamageable() && stack.getDamage() > 0) {
+            stack.setDamage(0);
         }
     }
 }

@@ -1,30 +1,33 @@
 package com.lithumc.mixin;
 
 import com.lithumc.config.AbfConfig;
-import net.minecraft.core.Registry;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ExperienceOrb;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.FishingHook;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ExperienceOrbEntity;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.FishingBobberEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.LiteralText;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -32,71 +35,65 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Mixin targeting FishingHook to replace vanilla fishing loot.
- *
- * Pool modes:
- *   WHITELIST (isWhitelist=true)  – only listed items/entities can appear.
- *                                   Empty list = skip this loot type entirely.
- *   BLACKLIST (isWhitelist=false) – full registry minus listed items/entities.
- *                                   allowModded, allowAdmin, allowDangerous filters apply.
- *
- * Uses EntityType.create(Level) for maximum version compatibility (1.17+).
- * MC 1.18.2 port: uses Registry API, field access for level/isClientSide,
- *                  TextComponent + player.sendMessage (no sendSystemMessage).
+ * Mixin targeting FishingBobberEntity to replace vanilla fishing loot.
+ * MC 1.16.5 Yarn mappings. Java 8 compatible.
  */
-@Mixin(FishingHook.class)
+@Mixin(FishingBobberEntity.class)
 public abstract class FishingHookMixin {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("anythingbutfish");
+    private static final Logger LOGGER = LogManager.getLogger("anythingbutfish");
     private static final Random RANDOM = new Random();
 
-    private static final Set<String> ADMIN_ITEMS = Set.of(
+    private static final Set<String> ADMIN_ITEMS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             "minecraft:command_block", "minecraft:chain_command_block",
             "minecraft:repeating_command_block", "minecraft:command_block_minecart",
             "minecraft:structure_block", "minecraft:structure_void",
             "minecraft:jigsaw_block", "minecraft:barrier",
             "minecraft:debug_stick", "minecraft:written_book",
             "minecraft:knowledge_book", "minecraft:light"
-    );
+    )));
 
-    private static final Set<String> DANGEROUS_MOBS = Set.of(
+    private static final Set<String> DANGEROUS_MOBS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             "minecraft:ender_dragon", "minecraft:wither"
-    );
+    )));
 
     @Unique private boolean abf$wasInWater    = false;
     @Unique private int     abf$retrieveResult = 0;
 
     // -----------------------------------------------------------------------
-    // Registry helpers (MC 1.18.2 uses Registry, not BuiltInRegistries)
+    // Registry helpers
     // -----------------------------------------------------------------------
+
     private static Optional<Item> resolveItem(String id) {
-        if (id == null || id.isBlank()) return Optional.empty();
-        return Registry.ITEM.getOptional(new ResourceLocation(id));
+        if (id == null || id.trim().isEmpty()) return Optional.empty();
+        return Registry.ITEM.getOrEmpty(new Identifier(id));
     }
 
     private static Optional<EntityType<?>> resolveEntityType(String id) {
-        if (id == null || id.isBlank()) return Optional.empty();
-        return Registry.ENTITY_TYPE.getOptional(new ResourceLocation(id));
+        if (id == null || id.trim().isEmpty()) return Optional.empty();
+        return Registry.ENTITY_TYPE.getOrEmpty(new Identifier(id));
     }
 
     // -----------------------------------------------------------------------
-    // Inject HEAD: snapshot in-water state
+    // Inject HEAD – Yarn: use(ItemStack), not retrieve
     // -----------------------------------------------------------------------
-    @Inject(method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I", at = @At("HEAD"))
+
+    @Inject(method = "use(Lnet/minecraft/item/ItemStack;)I", at = @At("HEAD"))
     private void abf$beforeRetrieve(ItemStack usedItem, CallbackInfoReturnable<Integer> cir) {
-        FishingHook self = (FishingHook)(Object) this;
-        abf$wasInWater = !self.level.isClientSide && self.isInWater();   // field access
+        FishingBobberEntity self = (FishingBobberEntity) (Object) this;
+        abf$wasInWater = !self.world.isClient && self.isTouchingWater();
     }
 
-    @Inject(method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I", at = @At("RETURN"))
+    @Inject(method = "use(Lnet/minecraft/item/ItemStack;)I", at = @At("RETURN"))
     private void abf$captureResult(ItemStack usedItem, CallbackInfoReturnable<Integer> cir) {
         abf$retrieveResult = cir.getReturnValue();
     }
 
     // -----------------------------------------------------------------------
-    // Inject TAIL: replace vanilla loot
+    // Inject TAIL
     // -----------------------------------------------------------------------
-    @Inject(method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I", at = @At("TAIL"))
+
+    @Inject(method = "use(Lnet/minecraft/item/ItemStack;)I", at = @At("TAIL"))
     private void abf$afterRetrieve(ItemStack usedItem, CallbackInfoReturnable<Integer> cir) {
         if (!abf$wasInWater) return;
         abf$wasInWater = false;
@@ -109,34 +106,39 @@ public abstract class FishingHookMixin {
             return;
         }
 
-        FishingHook self  = (FishingHook)(Object) this;
-        Level level = self.level;                                       // field access
-        if (level.isClientSide) return;                                 // field access
+        FishingBobberEntity self = (FishingBobberEntity) (Object) this;
+        World world = self.world;
+        if (world.isClient) return;
 
-        Player owner = self.getPlayerOwner();
-        if (!(owner instanceof ServerPlayer serverPlayer)) return;
-        ServerLevel serverLevel = (ServerLevel) level;
+        PlayerEntity owner = self.getPlayerOwner();
+        if (!(owner instanceof ServerPlayerEntity)) return;
+        ServerPlayerEntity serverPlayer = (ServerPlayerEntity) owner;
+
+        ServerWorld serverWorld = (ServerWorld) world;
 
         double bx = self.getX(), by = self.getY(), bz = self.getZ();
-        serverLevel.getEntitiesOfClass(ItemEntity.class,
-                self.getBoundingBox().inflate(2.0)).forEach(Entity::discard);
 
-        level.playSound(null, bx, by, bz,
-                SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL,
-                1.0F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
+        // Remove vanilla item drops – Yarn: getEntitiesByClass(Class, Box, Predicate)
+        serverWorld.getEntitiesByClass(ItemEntity.class,
+                self.getBoundingBox().expand(2.0), null).forEach(Entity::remove);
+
+        world.playSound(null, bx, by, bz,
+                SoundEvents.ENTITY_FISHING_BOBBER_RETRIEVE, SoundCategory.NEUTRAL,
+                1.0F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
 
         if (cfg.debugMode)
             LOGGER.info("[AnythingButFish] {} reeled in – generating random loot!",
                     serverPlayer.getName().getString());
 
-        spawnRandomLoot(self, serverLevel, serverPlayer, cfg);
+        spawnRandomLoot(self, serverWorld, serverPlayer, cfg);
     }
 
     // -----------------------------------------------------------------------
     // Loot dispatch
     // -----------------------------------------------------------------------
-    private static void spawnRandomLoot(FishingHook hook, ServerLevel level,
-                                        ServerPlayer player, AbfConfig cfg) {
+
+    private static void spawnRandomLoot(FishingBobberEntity hook, ServerWorld world,
+                                        ServerPlayerEntity player, AbfConfig cfg) {
         int total = cfg.thresholdXp();
         if (total <= 0) {
             if (cfg.debugMode) LOGGER.info("[AnythingButFish] All chances are 0 – no loot.");
@@ -144,15 +146,16 @@ public abstract class FishingHookMixin {
         }
 
         int roll = RANDOM.nextInt(100);
-        if      (roll < cfg.thresholdItem())   spawnItem(hook, level, player, cfg);
-        else if (roll < cfg.thresholdEntity()) spawnEntity(hook, level, player, cfg);
-        else if (roll < cfg.thresholdXp())     spawnXp(hook, level, player, cfg);
+
+        if      (roll < cfg.thresholdItem())   spawnItem(hook, world, player, cfg);
+        else if (roll < cfg.thresholdEntity()) spawnEntity(hook, world, player, cfg);
+        else if (roll < cfg.thresholdXp())     spawnXp(hook, world, player, cfg);
         else {
-            level.playSound(null, hook.getX(), hook.getY(), hook.getZ(),
-                    SoundEvents.FISHING_BOBBER_SPLASH, SoundSource.NEUTRAL, 0.25F, 1.0F);
+            world.playSound(null, hook.getX(), hook.getY(), hook.getZ(),
+                    SoundEvents.ENTITY_FISHING_BOBBER_SPLASH, SoundCategory.NEUTRAL, 0.25F, 1.0F);
             if (cfg.debugMode) {
                 LOGGER.info("[AnythingButFish] The one that got away...");
-                player.sendMessage(new TextComponent("[ABF] The one that got away..."), player.getUUID());
+                player.sendMessage(new LiteralText("[ABF] The one that got away..."), false);
             }
         }
     }
@@ -160,8 +163,9 @@ public abstract class FishingHookMixin {
     // -----------------------------------------------------------------------
     // Item drop
     // -----------------------------------------------------------------------
-    private static void spawnItem(FishingHook hook, ServerLevel level,
-                                  ServerPlayer player, AbfConfig cfg) {
+
+    private static void spawnItem(FishingBobberEntity hook, ServerWorld world,
+                                  ServerPlayerEntity player, AbfConfig cfg) {
         Item chosen;
         int  minCount, maxCount;
 
@@ -173,7 +177,7 @@ public abstract class FishingHookMixin {
             }
             AbfConfig.ItemEntry entry = cfg.itemPool.get(RANDOM.nextInt(cfg.itemPool.size()));
             Optional<Item> opt = resolveItem(entry.id);
-            if (opt.isEmpty()) {
+            if (!opt.isPresent()) {
                 LOGGER.warn("[AnythingButFish] Unknown item id '{}' in whitelist – skipping.", entry.id);
                 return;
             }
@@ -183,16 +187,18 @@ public abstract class FishingHookMixin {
         } else {
             Set<String> excluded = cfg.itemPool.stream()
                     .map(e -> e.id).collect(Collectors.toSet());
+
             List<Item> pool = Registry.ITEM.stream()
                     .filter(item -> {
-                        String key = Registry.ITEM.getKey(item).toString();
-                        String ns  = Registry.ITEM.getKey(item).getNamespace();
+                        String key = Registry.ITEM.getId(item).toString();
+                        String ns  = Registry.ITEM.getId(item).getNamespace();
                         if (excluded.contains(key)) return false;
                         if (!cfg.allowModdedItems && !"minecraft".equals(ns)) return false;
                         if (!cfg.allowAdminItems  && ADMIN_ITEMS.contains(key)) return false;
                         return true;
                     })
                     .collect(Collectors.toList());
+
             if (pool.isEmpty()) return;
             chosen   = pool.get(RANDOM.nextInt(pool.size()));
             minCount = cfg.itemCountMin;
@@ -201,25 +207,27 @@ public abstract class FishingHookMixin {
 
         int range = maxCount - minCount + 1;
         int count = minCount + (range > 0 ? RANDOM.nextInt(range) : 0);
-        ItemStack stack = new ItemStack(chosen, count);
 
+        ItemStack stack = new ItemStack(chosen, count);
         double x = hook.getX(), y = hook.getY(), z = hook.getZ();
-        ItemEntity ie = new ItemEntity(level, x, y, z, stack);
+
+        ItemEntity ie = new ItemEntity(world, x, y, z, stack);
         applyArc(ie, x, y, z, player, cfg);
-        level.addFreshEntity(ie);
+        world.spawnEntity(ie);
 
         if (cfg.debugMode) {
-            String msg = "[ABF] Item: " + Registry.ITEM.getKey(chosen) + " x" + count;
+            String msg = "[ABF] Item: " + Registry.ITEM.getId(chosen) + " x" + count;
             LOGGER.info("[AnythingButFish] {}", msg);
-            player.sendMessage(new TextComponent(msg), player.getUUID());
+            player.sendMessage(new LiteralText(msg), false);
         }
     }
 
     // -----------------------------------------------------------------------
     // Entity spawn
     // -----------------------------------------------------------------------
-    private static void spawnEntity(FishingHook hook, ServerLevel level,
-                                    ServerPlayer player, AbfConfig cfg) {
+
+    private static void spawnEntity(FishingBobberEntity hook, ServerWorld world,
+                                    ServerPlayerEntity player, AbfConfig cfg) {
         EntityType<?> chosen;
 
         if (cfg.entityPoolIsWhitelist) {
@@ -230,7 +238,7 @@ public abstract class FishingHookMixin {
             }
             AbfConfig.EntityEntry entry = cfg.entityPool.get(RANDOM.nextInt(cfg.entityPool.size()));
             Optional<EntityType<?>> opt = resolveEntityType(entry.id);
-            if (opt.isEmpty()) {
+            if (!opt.isPresent()) {
                 LOGGER.warn("[AnythingButFish] Unknown entity id '{}' in whitelist – skipping.", entry.id);
                 return;
             }
@@ -238,52 +246,51 @@ public abstract class FishingHookMixin {
         } else {
             Set<String> excluded = cfg.entityPool.stream()
                     .map(e -> e.id).collect(Collectors.toSet());
+
             List<EntityType<?>> pool = Registry.ENTITY_TYPE.stream()
                     .filter(et -> et != EntityType.PLAYER && et != EntityType.FISHING_BOBBER)
                     .filter(et -> {
-                        String key = Registry.ENTITY_TYPE.getKey(et).toString();
-                        String ns  = Registry.ENTITY_TYPE.getKey(et).getNamespace();
+                        String key = Registry.ENTITY_TYPE.getId(et).toString();
+                        String ns  = Registry.ENTITY_TYPE.getId(et).getNamespace();
                         if (excluded.contains(key)) return false;
                         if (!cfg.allowModdedEntities && !"minecraft".equals(ns)) return false;
                         if (!cfg.allowDangerousMobs  && DANGEROUS_MOBS.contains(key)) return false;
                         return true;
                     })
                     .collect(Collectors.toList());
+
             if (pool.isEmpty()) return;
             chosen = pool.get(RANDOM.nextInt(pool.size()));
         }
 
-        trySpawn(chosen, hook, level, player, cfg);
+        trySpawn(chosen, hook, world, player, cfg);
     }
 
-    /**
-     * Uses EntityType.create(Level) – available in all target versions (1.17+).
-     */
-    private static <T extends Entity> void trySpawn(EntityType<T> type, FishingHook hook,
-                                                    ServerLevel level, ServerPlayer player,
+    private static <T extends Entity> void trySpawn(EntityType<T> type, FishingBobberEntity hook,
+                                                    ServerWorld world, ServerPlayerEntity player,
                                                     AbfConfig cfg) {
         try {
-            T entity = type.create(level);
+            T entity = type.create(world);
             if (entity != null) {
                 double x = hook.getX(), y = hook.getY(), z = hook.getZ();
-                entity.setPos(x, y, z);
-                entity.setYRot(RANDOM.nextFloat() * 360F);
+                entity.refreshPositionAndAngles(x, y, z, RANDOM.nextFloat() * 360F, 0.0F);
                 applyArc(entity, x, y, z, player, cfg);
-                level.addFreshEntity(entity);
+                world.spawnEntity(entity);
+
                 if (cfg.debugMode) {
-                    String msg = "[ABF] Entity: " + Registry.ENTITY_TYPE.getKey(type);
+                    String msg = "[ABF] Entity: " + Registry.ENTITY_TYPE.getId(type);
                     LOGGER.info("[AnythingButFish] {}", msg);
-                    player.sendMessage(new TextComponent(msg), player.getUUID());
+                    player.sendMessage(new LiteralText(msg), false);
                 }
             }
         } catch (Exception e) {
             LOGGER.warn("[AnythingButFish] Failed to spawn {}: {}", type, e.getMessage());
             try {
-                var pig = EntityType.PIG.create(level);
+                Entity pig = EntityType.PIG.create(world);
                 if (pig != null) {
-                    pig.setPos(hook.getX(), hook.getY(), hook.getZ());
+                    pig.refreshPositionAndAngles(hook.getX(), hook.getY(), hook.getZ(), 0.0F, 0.0F);
                     applyArc(pig, hook.getX(), hook.getY(), hook.getZ(), player, cfg);
-                    level.addFreshEntity(pig);
+                    world.spawnEntity(pig);
                 }
             } catch (Exception ignored) {}
         }
@@ -292,34 +299,38 @@ public abstract class FishingHookMixin {
     // -----------------------------------------------------------------------
     // XP orbs
     // -----------------------------------------------------------------------
-    private static void spawnXp(FishingHook hook, ServerLevel level,
-                                ServerPlayer player, AbfConfig cfg) {
+
+    private static void spawnXp(FishingBobberEntity hook, ServerWorld world,
+                                ServerPlayerEntity player, AbfConfig cfg) {
         int range = cfg.xpMax - cfg.xpMin + 1;
         int xp    = cfg.xpMin + (range > 0 ? RANDOM.nextInt(range) : 0);
+
         double x  = hook.getX(), y = hook.getY(), z = hook.getZ();
 
-        ExperienceOrb orb = new ExperienceOrb(level, x, y, z, xp);
+        ExperienceOrbEntity orb = new ExperienceOrbEntity(world, x, y, z, xp);
         applyArc(orb, x, y, z, player, cfg);
-        level.addFreshEntity(orb);
+        world.spawnEntity(orb);
 
         if (cfg.debugMode) {
             String msg = "[ABF] XP: " + xp;
             LOGGER.info("[AnythingButFish] {}", msg);
-            player.sendMessage(new TextComponent(msg), player.getUUID());
+            player.sendMessage(new LiteralText(msg), false);
         }
     }
 
     // -----------------------------------------------------------------------
     // Arc velocity
     // -----------------------------------------------------------------------
+
     private static void applyArc(Entity entity, double x, double y, double z,
-                                 ServerPlayer player, AbfConfig cfg) {
+                                 ServerPlayerEntity player, AbfConfig cfg) {
         double dx = player.getX() - x;
         double dy = player.getY() - y;
         double dz = player.getZ() - z;
-        entity.setDeltaMovement(
+
+        entity.setVelocity(
                 dx * cfg.flingSpeed,
-                dy * cfg.flingSpeed + Math.sqrt(Math.sqrt(dx*dx + dy*dy + dz*dz)) * cfg.flingArc,
+                dy * cfg.flingSpeed + Math.sqrt(Math.sqrt(dx * dx + dy * dy + dz * dz)) * cfg.flingArc,
                 dz * cfg.flingSpeed
         );
     }

@@ -4,7 +4,7 @@ import com.lithumc.AnythingButFish;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screen.Screen;
 
 import java.lang.reflect.Method;
 
@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 @Environment(EnvType.CLIENT)
 public class AbfYaclBridge {
 
-    private static final String CLOTH_MOD_ID = "cloth-config";
+    private static final String CLOTH_MOD_ID = "cloth-config2";
     private static Boolean clothPresent = null;
 
     /** @return true if Cloth Config is loaded in the current environment */

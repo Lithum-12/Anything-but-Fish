@@ -17,7 +17,8 @@ public class anythingbutfishClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         AnythingButFish.LOGGER.info("[AnythingButFish] Client initialized.");
-        // Log YACL status on client startup
+
+        // Log Cloth Config status on client startup
         AbfYaclBridge.isYaclPresent();
 
         if (FabricLoader.getInstance().isModLoaded("modmenu")) {

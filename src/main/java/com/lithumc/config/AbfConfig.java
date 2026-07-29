@@ -26,6 +26,7 @@ public class AbfConfig {
     // -----------------------------------------------------------------------
     // Entry types (no weight – pool mode determines selection)
     // -----------------------------------------------------------------------
+
     public static class ItemEntry {
         public String id = "minecraft:cod";
         public int minCount = -1;
@@ -50,6 +51,7 @@ public class AbfConfig {
     // -----------------------------------------------------------------------
     // Pool mode switches
     // -----------------------------------------------------------------------
+
     /** true = whitelist (only listed items), false = blacklist (all except listed) */
     public boolean itemPoolIsWhitelist = false;
     /** true = whitelist (only listed entities), false = blacklist (all except listed) */
@@ -58,6 +60,7 @@ public class AbfConfig {
     // -----------------------------------------------------------------------
     // Misc toggles
     // -----------------------------------------------------------------------
+
     /** Master switch. If false, vanilla fishing behavior is restored. */
     public boolean enabled = true;
     /** Debug mode: print caught loot to chat and log. */
@@ -66,7 +69,7 @@ public class AbfConfig {
     public boolean infiniteDurability = false;
     /**
      * Compatibility mode for modded fishing rods.
-     * Informational – the mod already hooks into all FishingHook entities.
+     * Informational – the mod already hooks into all FishingBobberEntity entities.
      */
     public boolean moddedRodCompat = true;
     /**
@@ -78,6 +81,7 @@ public class AbfConfig {
     // -----------------------------------------------------------------------
     // Registry filters (apply in BLACKLIST mode only)
     // -----------------------------------------------------------------------
+
     /** Allow modded (non-minecraft namespace) items in blacklist mode. */
     public boolean allowModdedItems = true;
     /** Allow modded (non-minecraft namespace) entities in blacklist mode. */
@@ -90,6 +94,7 @@ public class AbfConfig {
     // -----------------------------------------------------------------------
     // Chance settings
     // -----------------------------------------------------------------------
+
     public int chanceItem = 60;
     public int chanceEntity = 25;
     public int chanceXp = 10;
@@ -97,6 +102,7 @@ public class AbfConfig {
     // -----------------------------------------------------------------------
     // Item settings
     // -----------------------------------------------------------------------
+
     public int itemCountMin = 1;
     public int itemCountMax = 1;
 
@@ -110,6 +116,7 @@ public class AbfConfig {
     // -----------------------------------------------------------------------
     // Entity settings
     // -----------------------------------------------------------------------
+
     /**
      * Entity pool. Behaviour depends on entityPoolIsWhitelist:
      *   WHITELIST – only these entities can appear (empty = skip entity spawns).
@@ -120,18 +127,21 @@ public class AbfConfig {
     // -----------------------------------------------------------------------
     // XP settings
     // -----------------------------------------------------------------------
+
     public int xpMin = 1;
     public int xpMax = 50;
 
     // -----------------------------------------------------------------------
     // Physics settings
     // -----------------------------------------------------------------------
+
     public double flingSpeed = 0.1;
     public double flingArc = 0.08;
 
     // -----------------------------------------------------------------------
     // Singleton
     // -----------------------------------------------------------------------
+
     private static AbfConfig INSTANCE = null;
 
     public static AbfConfig get() {
@@ -146,6 +156,7 @@ public class AbfConfig {
     // -----------------------------------------------------------------------
     // Load / Save
     // -----------------------------------------------------------------------
+
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private static Path configPath() {
@@ -155,6 +166,7 @@ public class AbfConfig {
     public static AbfConfig load() {
         Path path = configPath();
         AbfConfig cfg = new AbfConfig();
+
         if (path.toFile().exists()) {
             try (Reader r = new InputStreamReader(new FileInputStream(path.toFile()), StandardCharsets.UTF_8)) {
                 AbfConfig loaded = GSON.fromJson(r, AbfConfig.class);
@@ -163,6 +175,7 @@ public class AbfConfig {
                 AnythingButFish.LOGGER.warn("[AnythingButFish] Failed to load config: {}", e.getMessage());
             }
         }
+
         cfg.save();
         return cfg;
     }
@@ -215,15 +228,16 @@ public class AbfConfig {
         flingArc   = Math.max(0.0,  flingArc);
 
         if (itemPool == null) itemPool = new ArrayList<>();
-        itemPool.removeIf(e -> e == null || e.id == null || e.id.isBlank());
+        itemPool.removeIf(e -> e == null || e.id == null || e.id.trim().isEmpty());
 
         if (entityPool == null) entityPool = new ArrayList<>();
-        entityPool.removeIf(e -> e == null || e.id == null || e.id.isBlank());
+        entityPool.removeIf(e -> e == null || e.id == null || e.id.trim().isEmpty());
     }
 
     // -----------------------------------------------------------------------
     // Threshold helpers
     // -----------------------------------------------------------------------
+
     public int thresholdItem()   { return chanceItem; }
     public int thresholdEntity() { return chanceItem + chanceEntity; }
     public int thresholdXp()     { return chanceItem + chanceEntity + chanceXp; }
