@@ -34,18 +34,19 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     // Fabric API – dev environment only, not required at runtime
-    modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"    // ← 改：modImplementation → modLocalRuntime
+    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     // YetAnotherConfigLib – optional at runtime, required at compile time for the GUI code
     modCompileOnly "dev.isxander:yet-another-config-lib:${project.yacl_version}"
     modLocalRuntime "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 
     // ModMenu – optional at runtime, compile-only for the ModMenuApi interface
-    modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"             // ← 改：硬编码 → 属性
-    modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"            // ← 改：硬编码 → 属性
+    modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+    modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
 
     // Fix: YACL's TwelveMonkeys WebP SPI missing in dev environment
-    modLocalRuntime "com.twelvemonkeys.imageio:imageio-webp:3.11.0"                    // ← 新增
+    modLocalRuntime "com.twelvemonkeys.imageio:imageio-webp:3.11.0"
 }
 
 processResources {
