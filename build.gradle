@@ -34,6 +34,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     // Fabric API – dev environment only, not required at runtime
+    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     // YetAnotherConfigLib – optional at runtime, required at compile time for the GUI code
