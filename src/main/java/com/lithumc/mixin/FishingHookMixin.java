@@ -119,7 +119,7 @@ public abstract class FishingHookMixin {
     private static void spawnRandomLoot(FishingHook hook, ServerLevel level,
                                          ServerPlayer player, AbfConfig cfg) {
         // cfg.thresholdXp() = chanceItem + chanceEntity + chanceXp (already clamped to 0-100 by AbfConfig.save/load)
-        // If all three chances are 0, total = 0 → nothing happens (silent, no sound).
+        // If all three chances are 0, total = 0 -> nothing happens (silent, no sound).
         int total = cfg.thresholdXp();
         if (total <= 0) {
             // All chances are 0: nothing to do, no loot, no sound.

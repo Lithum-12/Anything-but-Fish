@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * YACL-based GUI configuration screen for AnythingButFish.
  *
- * Tab order: 常规 | 杂项 | 物品池 | 实体池
+ * Tab order: General | Misc | ItemPool | EntityPool
  */
 public class AbfYaclConfig {
 
@@ -100,7 +100,9 @@ public class AbfYaclConfig {
         return YetAnotherConfigLib.createBuilder()
                 .title(Component.translatable("config.anythingbutfish.title"))
 
-                // ── Tab 1: 常规 ───────────────────────────────────────────────
+                // -----------------------------------------------------------------------
+                // Tab 1: General
+                // -----------------------------------------------------------------------
                 .category(ConfigCategory.createBuilder()
                         .name(Component.translatable("config.anythingbutfish.cat.general"))
                         .tooltip(Component.translatable("config.anythingbutfish.cat.general.tooltip"))
@@ -185,7 +187,9 @@ public class AbfYaclConfig {
 
                         .build())
 
-                // ── Tab 2: 杂项 ───────────────────────────────────────────────
+                // -----------------------------------------------------------------------
+                // Tab 2: Misc
+                // -----------------------------------------------------------------------
                 .category(ConfigCategory.createBuilder()
                         .name(Component.translatable("config.anythingbutfish.cat.misc"))
                         .tooltip(Component.translatable("config.anythingbutfish.cat.misc.tooltip"))
@@ -239,14 +243,18 @@ public class AbfYaclConfig {
 
                         .build())
 
-                // ── Tab 3: 物品池 ─────────────────────────────────────────────
+                // -----------------------------------------------------------------------
+                // Tab 3: Item pool
+                // -----------------------------------------------------------------------
                 .category(ConfigCategory.createBuilder()
                         .name(Component.translatable("config.anythingbutfish.cat.itemPool"))
                         .tooltip(Component.translatable("config.anythingbutfish.cat.itemPool.tooltip"))
                         .group(itemPoolList)
                         .build())
 
-                // ── Tab 4: 实体池 ─────────────────────────────────────────────
+                // -----------------------------------------------------------------------
+                // Tab 4: Entity pool
+                // -----------------------------------------------------------------------
                 .category(ConfigCategory.createBuilder()
                         .name(Component.translatable("config.anythingbutfish.cat.entityPool"))
                         .tooltip(Component.translatable("config.anythingbutfish.cat.entityPool.tooltip"))
