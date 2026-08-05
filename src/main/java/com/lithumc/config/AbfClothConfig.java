@@ -78,9 +78,9 @@ public class AbfClothConfig {
         for (AbfConfig.ItemEntry   e : cfg.itemPool)   itemPoolStrings.add(serializeItem(e));
         for (AbfConfig.EntityEntry e : cfg.entityPool) entityPoolStrings.add(serializeEntity(e));
 
-        // ════════════════════════════════════════════════════════════
+        // -----------------------------------------------------------------------
         // Category 1: General
-        // ════════════════════════════════════════════════════════════
+        // -----------------------------------------------------------------------
         ConfigCategory general = builder.getOrCreateCategory(
                 Component.translatable("config.anythingbutfish.cat.general"));
 
@@ -137,9 +137,9 @@ public class AbfClothConfig {
                 .setTooltip(Component.translatable("config.anythingbutfish.flingArc.tooltip"))
                 .setSaveConsumer(v -> cfg.flingArc = v).build());
 
-        // ════════════════════════════════════════════════════════════
+        // -----------------------------------------------------------------------
         // Category 2: Misc
-        // ════════════════════════════════════════════════════════════
+        // -----------------------------------------------------------------------
         ConfigCategory misc = builder.getOrCreateCategory(
                 Component.translatable("config.anythingbutfish.cat.misc"));
 
@@ -172,9 +172,9 @@ public class AbfClothConfig {
                 .setTooltip(Component.translatable("config.anythingbutfish.moddedRodCompat.tooltip"))
                 .setSaveConsumer(v -> cfg.moddedRodCompat = v).build());
 
-        // ════════════════════════════════════════════════════════════
+        // -----------------------------------------------------------------------
         // Category 3: Item Pool
-        // ════════════════════════════════════════════════════════════
+        // -----------------------------------------------------------------------
         ConfigCategory itemPool = builder.getOrCreateCategory(
                 Component.translatable("config.anythingbutfish.cat.itemPool"));
 
@@ -200,7 +200,7 @@ public class AbfClothConfig {
         // Item list
         itemPool.addEntry(eb.startStrList(
                         Component.translatable("config.anythingbutfish.itemPool"), itemPoolStrings)
-                .setDefaultValue(List.of())                                          // ← 原 List.of("minecraft:diamond")
+                .setDefaultValue(List.of())                                          // Default: empty item list
                 .setTooltip(Component.translatable("config.anythingbutfish.itemPool.tooltip"))
                 .setSaveConsumer(v -> {
                     cfg.itemPool.clear();
@@ -210,9 +210,9 @@ public class AbfClothConfig {
                     }
                 }).build());
 
-        // ════════════════════════════════════════════════════════════
+        // -----------------------------------------------------------------------
         // Category 4: Entity Pool
-        // ════════════════════════════════════════════════════════════
+        // -----------------------------------------------------------------------
         ConfigCategory entityPool = builder.getOrCreateCategory(
                 Component.translatable("config.anythingbutfish.cat.entityPool"));
 
@@ -238,7 +238,7 @@ public class AbfClothConfig {
         // Entity list
         entityPool.addEntry(eb.startStrList(
                         Component.translatable("config.anythingbutfish.entityPool"), entityPoolStrings)
-                .setDefaultValue(List.of())                                          // ← 原 List.of("minecraft:pig")
+                .setDefaultValue(List.of())                                          // Default: empty entity list
                 .setTooltip(Component.translatable("config.anythingbutfish.entityPool.tooltip"))
                 .setSaveConsumer(v -> {
                     cfg.entityPool.clear();
