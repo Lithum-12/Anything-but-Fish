@@ -24,7 +24,7 @@ repositories {
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    // Use Mojang mappings
+    // MC 26.1+ No longer needs mappings
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     // Fabric API - optional at runtime, required at compile time for the API code
     compileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
