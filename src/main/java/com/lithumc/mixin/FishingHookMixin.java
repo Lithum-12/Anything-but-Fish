@@ -75,7 +75,7 @@ public abstract class FishingHookMixin {
     }
 
     // -----------------------------------------------------------------------
-    // Inject HEAD – Yarn: use(ItemStack), not retrieve
+    // HEAD: snapshot in-water state before vanilla runs (Yarn: use(ItemStack))
     // -----------------------------------------------------------------------
 
     @Inject(method = "use(Lnet/minecraft/item/ItemStack;)I", at = @At("HEAD"))
@@ -90,7 +90,7 @@ public abstract class FishingHookMixin {
     }
 
     // -----------------------------------------------------------------------
-    // Inject TAIL
+    // TAIL: replace loot after vanilla has run
     // -----------------------------------------------------------------------
 
     @Inject(method = "use(Lnet/minecraft/item/ItemStack;)I", at = @At("TAIL"))
