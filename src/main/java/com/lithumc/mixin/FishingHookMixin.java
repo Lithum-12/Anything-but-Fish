@@ -64,7 +64,7 @@ public abstract class FishingHookMixin {
     @Unique private int     abf$retrieveResult = 0;
 
     // -----------------------------------------------------------------------
-    // Inject HEAD: snapshot in-water state
+    // HEAD: snapshot in-water state before vanilla runs
     // -----------------------------------------------------------------------
 
     @Inject(method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I", at = @At("HEAD"))
@@ -79,7 +79,7 @@ public abstract class FishingHookMixin {
     }
 
     // -----------------------------------------------------------------------
-    // Inject TAIL: replace vanilla loot
+    // TAIL: replace loot after vanilla has run
     // -----------------------------------------------------------------------
 
     @Inject(method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I", at = @At("TAIL"))
@@ -157,7 +157,7 @@ public abstract class FishingHookMixin {
         int  minCount, maxCount;
 
         if (cfg.itemPoolIsWhitelist) {
-            // ── WHITELIST ─────────────────────────────────────────────────
+            // WHITELIST mode
             if (cfg.itemPool.isEmpty()) {
                 if (cfg.debugMode)
                     LOGGER.info("[AnythingButFish] Item whitelist is empty – skipping item drop.");
@@ -174,7 +174,7 @@ public abstract class FishingHookMixin {
             maxCount = entry.maxCount >= minCount ? entry.maxCount : cfg.itemCountMax;
 
         } else {
-            // ── BLACKLIST ─────────────────────────────────────────────────
+            // BLACKLIST mode
             Set<String> excluded = cfg.itemPool.stream()
                     .map(e -> e.id).collect(Collectors.toSet());
 
@@ -220,7 +220,7 @@ public abstract class FishingHookMixin {
         EntityType<?> chosen;
 
         if (cfg.entityPoolIsWhitelist) {
-            // ── WHITELIST ─────────────────────────────────────────────────
+            // WHITELIST mode
             if (cfg.entityPool.isEmpty()) {
                 if (cfg.debugMode)
                     LOGGER.info("[AnythingButFish] Entity whitelist is empty – skipping entity spawn.");
@@ -235,7 +235,7 @@ public abstract class FishingHookMixin {
             chosen = opt.get();
 
         } else {
-            // ── BLACKLIST ─────────────────────────────────────────────────
+            // BLACKLIST mode
             Set<String> excluded = cfg.entityPool.stream()
                     .map(e -> e.id).collect(Collectors.toSet());
 
