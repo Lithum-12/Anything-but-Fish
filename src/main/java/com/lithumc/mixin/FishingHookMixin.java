@@ -65,7 +65,7 @@ public abstract class FishingHookMixin {
     @Unique private int     abf$retrieveResult = 0;
 
     // -----------------------------------------------------------------------
-    // Inject HEAD: snapshot in-water state
+    // HEAD: snapshot in-water state before vanilla runs
     // -----------------------------------------------------------------------
     @Inject(method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I", at = @At("HEAD"))
     private void abf$beforeRetrieve(ItemStack usedItem, CallbackInfoReturnable<Integer> cir) {
@@ -79,7 +79,7 @@ public abstract class FishingHookMixin {
     }
 
     // -----------------------------------------------------------------------
-    // Inject TAIL: replace vanilla loot
+    // TAIL: replace loot after vanilla has run
     // -----------------------------------------------------------------------
     @Inject(method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I", at = @At("TAIL"))
     private void abf$afterRetrieve(ItemStack usedItem, CallbackInfoReturnable<Integer> cir) {
