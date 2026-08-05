@@ -1,3 +1,14 @@
+// =============================================================================
+// IMPORTANT: This branch (Main) is for demonstration purposes only.
+//
+// The code here is outdated and no longer maintained. Please switch to the
+// appropriate version branch (e.g. mc-1.21.11, mc-1.20.1, mc-1.18.2) for the
+// latest code corresponding to your Minecraft version.
+//
+// Do NOT open issues or pull requests against this branch. They will be closed
+// without review. Use the version-specific branches instead.
+// =============================================================================
+
 plugins {
     id 'fabric-loom' version '1.15-SNAPSHOT'
     id 'maven-publish'
