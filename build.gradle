@@ -1,4 +1,5 @@
 plugins {
+    // NOTE: Fabric Loom 1.12+ disables Mixin AP by default; refmap not generated, runtime warning is harmless.
     id 'fabric-loom' version '1.15-SNAPSHOT'
     id 'maven-publish'
 }
