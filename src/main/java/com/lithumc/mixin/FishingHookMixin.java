@@ -63,9 +63,9 @@ import java.util.stream.Collectors;
             @Unique private boolean abf$wasInWater    = false;
             @Unique private int     abf$retrieveResult = 0;
 
-            // -----------------------------------------------------------------------
-            // Inject HEAD: snapshot in-water state
-            // -----------------------------------------------------------------------
+    // -----------------------------------------------------------------------
+    // HEAD: snapshot in-water state before vanilla runs
+    // -----------------------------------------------------------------------
 
             @Inject(method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I", at = @At("HEAD"))
             private void abf$beforeRetrieve(ItemStack usedItem, CallbackInfoReturnable<Integer> cir) {
@@ -78,9 +78,9 @@ import java.util.stream.Collectors;
                 abf$retrieveResult = cir.getReturnValue();
             }
 
-            // -----------------------------------------------------------------------
-            // Inject TAIL: replace vanilla loot
-            // -----------------------------------------------------------------------
+    // -----------------------------------------------------------------------
+    // TAIL: replace loot after vanilla has run
+    // -----------------------------------------------------------------------
 
             @Inject(method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I", at = @At("TAIL"))
             private void abf$afterRetrieve(ItemStack usedItem, CallbackInfoReturnable<Integer> cir) {
@@ -156,8 +156,8 @@ import java.util.stream.Collectors;
                 Item chosen;
                 int  minCount, maxCount;
 
-                if (cfg.itemPoolIsWhitelist) {
-                    // ── WHITELIST ─────────────────────────────────────────────────
+        if (cfg.itemPoolIsWhitelist) {
+            // WHITELIST mode
                     if (cfg.itemPool.isEmpty()) {
                         if (cfg.debugMode)
                             LOGGER.info("[AnythingButFish] Item whitelist is empty – skipping item drop.");
@@ -173,8 +173,8 @@ import java.util.stream.Collectors;
                     minCount = entry.minCount >= 1 ? entry.minCount : cfg.itemCountMin;
                     maxCount = entry.maxCount >= minCount ? entry.maxCount : cfg.itemCountMax;
 
-                } else {
-                    // ── BLACKLIST ─────────────────────────────────────────────────
+        } else {
+            // BLACKLIST mode
                     Set<String> excluded = cfg.itemPool.stream()
                             .map(e -> e.id).collect(Collectors.toSet());
 
@@ -219,8 +219,8 @@ import java.util.stream.Collectors;
                                             ServerPlayer player, AbfConfig cfg) {
                 EntityType<?> chosen;
 
-                if (cfg.entityPoolIsWhitelist) {
-                    // ── WHITELIST ─────────────────────────────────────────────────
+        if (cfg.entityPoolIsWhitelist) {
+            // WHITELIST mode
                     if (cfg.entityPool.isEmpty()) {
                         if (cfg.debugMode)
                             LOGGER.info("[AnythingButFish] Entity whitelist is empty – skipping entity spawn.");
@@ -234,8 +234,8 @@ import java.util.stream.Collectors;
                     }
                     chosen = opt.get();
 
-                } else {
-                    // ── BLACKLIST ─────────────────────────────────────────────────
+        } else {
+            // BLACKLIST mode
                     Set<String> excluded = cfg.entityPool.stream()
                             .map(e -> e.id).collect(Collectors.toSet());
 

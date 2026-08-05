@@ -17,10 +17,10 @@ import java.util.List;
  * YACL config screen for AnythingButFish.
  *
  * Tab layout:
- *   常规   – 概率 | 物品数量 | 经验 | 物理
- *   杂项   – 功能开关 | 钓鱼行为
- *   物品池 – 池模式 | 注册表筛选器 | 物品列表
- *   实体池 – 池模式 | 注册表筛选器 | 实体列表
+ *   General  – chances | item counts | XP | physics
+ *   Misc     – toggles | fishing behavior
+ *   ItemPool – pool mode | registry filters | item list
+ *   EntityPool – pool mode | registry filters | entity list
  *
  * Pool entry format (no weight):
  *   Items:    "namespace:name"  or  "namespace:name:minCount:maxCount"
@@ -42,11 +42,11 @@ public class AbfYaclConfig {
     private static AbfConfig.ItemEntry parseItem(String s) {
         if (s == null || s.isBlank()) return null;
         String[] parts = s.trim().split(":");
-        // minimum: "namespace:name" → 2 colon-separated tokens
+        // Minimum: "namespace:name" -> 2 colon-separated tokens
         if (parts.length < 2) return null;
         String id = parts[0] + ":" + parts[1];
         AbfConfig.ItemEntry entry = new AbfConfig.ItemEntry(id);
-        // optional: "namespace:name:minCount:maxCount" → 4 tokens
+        // Optional: "namespace:name:minCount:maxCount" -> 4 tokens
         if (parts.length >= 4) {
             try {
                 entry.minCount = Integer.parseInt(parts[2]);
@@ -80,7 +80,7 @@ public class AbfYaclConfig {
         for (AbfConfig.ItemEntry   e : cfg.itemPool)   itemPoolStrings.add(serializeItem(e));
         for (AbfConfig.EntityEntry e : cfg.entityPool) entityPoolStrings.add(serializeEntity(e));
 
-        // ── ListOption: 物品列表 ──────────────────────────────────────────
+        // ListOption: item pool
         ListOption<String> itemPoolList = ListOption.<String>createBuilder()
                 .name(Component.translatable("config.anythingbutfish.itemPool"))
                 .description(OptionDescription.of(
@@ -98,7 +98,7 @@ public class AbfYaclConfig {
                 .initial("minecraft:diamond")
                 .build();
 
-        // ── ListOption: 实体列表 ──────────────────────────────────────────
+        // ListOption: entity pool
         ListOption<String> entityPoolList = ListOption.<String>createBuilder()
                 .name(Component.translatable("config.anythingbutfish.entityPool"))
                 .description(OptionDescription.of(
@@ -119,14 +119,14 @@ public class AbfYaclConfig {
         return YetAnotherConfigLib.createBuilder()
                 .title(Component.translatable("config.anythingbutfish.title"))
 
-                // ════════════════════════════════════════════════════════════
-                // Tab 1: 常规
-                // ════════════════════════════════════════════════════════════
+                // -----------------------------------------------------------------------
+                // Tab 1: General
+                // -----------------------------------------------------------------------
                 .category(ConfigCategory.createBuilder()
                         .name(Component.translatable("config.anythingbutfish.cat.general"))
                         .tooltip(Component.translatable("config.anythingbutfish.cat.general.tooltip"))
 
-                        // 概率
+                        // Chances
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("config.anythingbutfish.group.chances"))
                                 .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.chances.desc")))
@@ -150,7 +150,7 @@ public class AbfYaclConfig {
                                         .build())
                                 .build())
 
-                        // 物品数量
+                        // Item counts
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("config.anythingbutfish.group.items"))
                                 .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.items.desc")))
@@ -168,7 +168,7 @@ public class AbfYaclConfig {
                                         .build())
                                 .build())
 
-                        // 经验
+                        // XP
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("config.anythingbutfish.group.xp"))
                                 .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.xp.desc")))
@@ -186,7 +186,7 @@ public class AbfYaclConfig {
                                         .build())
                                 .build())
 
-                        // 物理参数
+                        // Physics
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("config.anythingbutfish.group.physics"))
                                 .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.physics.desc")))
@@ -206,14 +206,14 @@ public class AbfYaclConfig {
 
                         .build())
 
-                // ════════════════════════════════════════════════════════════
-                // Tab 2: 杂项
-                // ════════════════════════════════════════════════════════════
+                // -----------------------------------------------------------------------
+                // Tab 2: Misc
+                // -----------------------------------------------------------------------
                 .category(ConfigCategory.createBuilder()
                         .name(Component.translatable("config.anythingbutfish.cat.misc"))
                         .tooltip(Component.translatable("config.anythingbutfish.cat.misc.tooltip"))
 
-                        // 功能开关
+                        // Toggles
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("config.anythingbutfish.group.switches"))
                                 .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.switches.desc")))
@@ -237,7 +237,7 @@ public class AbfYaclConfig {
                                         .build())
                                 .build())
 
-                        // 钓鱼行为
+                        // Fishing behavior
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("config.anythingbutfish.group.behavior"))
                                 .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.behavior.desc")))
@@ -257,14 +257,14 @@ public class AbfYaclConfig {
 
                         .build())
 
-                // ════════════════════════════════════════════════════════════
-                // Tab 3: 物品池
-                // ════════════════════════════════════════════════════════════
+                // -----------------------------------------------------------------------
+                // Tab 3: Item pool
+                // -----------------------------------------------------------------------
                 .category(ConfigCategory.createBuilder()
                         .name(Component.translatable("config.anythingbutfish.cat.itemPool"))
                         .tooltip(Component.translatable("config.anythingbutfish.cat.itemPool.tooltip"))
 
-                        // 池模式
+                        // Pool mode
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("config.anythingbutfish.group.itemPoolMode"))
                                 .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.itemPoolMode.desc")))
@@ -279,7 +279,7 @@ public class AbfYaclConfig {
                                         .build())
                                 .build())
 
-                        // 注册表筛选器（黑名单模式下生效）
+                        // Registry filters (apply in BLACKLIST mode)
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("config.anythingbutfish.group.itemFilters"))
                                 .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.itemFilters.desc")))
@@ -297,18 +297,18 @@ public class AbfYaclConfig {
                                         .build())
                                 .build())
 
-                        // 物品列表
+                        // Item list
                         .group(itemPoolList)
                         .build())
 
-                // ════════════════════════════════════════════════════════════
-                // Tab 4: 实体池
-                // ════════════════════════════════════════════════════════════
+                // -----------------------------------------------------------------------
+                // Tab 4: Entity pool
+                // -----------------------------------------------------------------------
                 .category(ConfigCategory.createBuilder()
                         .name(Component.translatable("config.anythingbutfish.cat.entityPool"))
                         .tooltip(Component.translatable("config.anythingbutfish.cat.entityPool.tooltip"))
 
-                        // 池模式
+                        // Pool mode
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("config.anythingbutfish.group.entityPoolMode"))
                                 .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.entityPoolMode.desc")))
@@ -323,7 +323,7 @@ public class AbfYaclConfig {
                                         .build())
                                 .build())
 
-                        // 注册表筛选器
+                        // Registry filters
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("config.anythingbutfish.group.entityFilters"))
                                 .description(OptionDescription.of(Component.translatable("config.anythingbutfish.group.entityFilters.desc")))
@@ -341,7 +341,7 @@ public class AbfYaclConfig {
                                         .build())
                                 .build())
 
-                        // 实体列表
+                        // Entity list
                         .group(entityPoolList)
                         .build())
 
