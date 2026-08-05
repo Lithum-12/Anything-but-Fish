@@ -209,7 +209,7 @@ public class AbfConfig {
                 w.write(" *     true  (WHITELIST) – only items/entities in the list can appear.\n");
                 w.write(" *                         Empty list = skip this loot type entirely.\n");
                 w.write(" *     false (BLACKLIST) – full registry minus items/entities in the list.\n");
-                w.write(" *                         allowModded*/allowAdmin/allowDangerous filters apply.\n");
+                w.write(" *                         allowModded/allowAdmin/allowDangerous filters apply.\n");
                 w.write(" *\n");
                 w.write(" * Pool entry format:\n");
                 w.write(" *   Items:    {\"id\": \"namespace:name\"}  or  {\"id\": \"namespace:name\", \"minCount\": 1, \"maxCount\": 3}\n");
