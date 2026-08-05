@@ -5,6 +5,12 @@ import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Main mod initializer for AnythingButFish.
+ *
+ * Loads the config once at startup and logs the active chance settings.
+ * All random loot generation happens server-side in the FishingHook mixin.
+ */
 public class AnythingButFish implements ModInitializer {
 
     public static final String MOD_ID = "anythingbutfish";
