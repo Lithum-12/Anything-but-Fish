@@ -180,8 +180,12 @@ public class AbfConfig {
         Path path = configPath();
         AbfConfig cfg = new AbfConfig();
         if (path.toFile().exists()) {
-            try (Reader r = new InputStreamReader(new FileInputStream(path.toFile()), StandardCharsets.UTF_8)) {
-                AbfConfig loaded = GSON.fromJson(r, AbfConfig.class);
+            try {
+                // Read file and strip /* ... */ comments so Gson can parse it
+                String content = new String(java.nio.file.Files.readAllBytes(path), StandardCharsets.UTF_8);
+                content = content.replaceAll("/\\*[\\s\\S]*?\\*/", "");
+
+                AbfConfig loaded = GSON.fromJson(content, AbfConfig.class);
                 if (loaded != null) { cfg = loaded; cfg.clamp(); }
             } catch (Exception e) {
                 AnythingButFish.LOGGER.warn("[AnythingButFish] Failed to load config: {}", e.getMessage());
