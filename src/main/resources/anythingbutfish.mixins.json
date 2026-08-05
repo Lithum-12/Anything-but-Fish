@@ -3,6 +3,7 @@
   "minVersion": "0.8",
   "package": "com.lithumc.mixin",
   "compatibilityLevel": "JAVA_21",
+  "refmap": "anythingbutfishmod-refmap.json",
   "mixins": [
     "FishingHookMixin",
     "FishingRodDurabilityMixin"
