@@ -10,7 +10,7 @@ You can now use the fishing rod to catch any item, including entities and object
 
 ### Introduction
 
-**Forge?** Please chick here:[anythingbutfish-forge](https://github.com/Lithum-12/anythingbutfish-forge)
+**Forge?** Please click here:[anythingbutfish-forge](https://github.com/Lithum-12/anythingbutfish-forge)
 
 The fishing rod is now empowered – you can fish up ANYTHING!
 
